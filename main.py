@@ -7,8 +7,8 @@ def main():
     pygame.init()
 
     # Initial window size
-    s_width = 1080
-    s_height = 720
+    s_width = 600
+    s_height = 800
 
     # Define spacetime 
     GRAVITY_X = 0.0
@@ -31,8 +31,8 @@ def main():
     # Initialisation
     damp = 0.8
 
-    ball1_x = 100
-    ball1_y = 150
+    ball1_x = 590
+    ball1_y = 790
     ball1_vx = 0
     ball1_vy = 0
 
