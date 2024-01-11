@@ -5,14 +5,17 @@ from numpy.random import randint
 
 class Ball:
 
-    def __init__(self,x,y,vx,vy,radius):
-        self.x = x
-        self.y = y
-        self.vx = vx
-        self.vy = vy
+    def __init__(self,r,v,radius):
+        self.r = r
+        self.x = r[0]
+        self.y = r[1]
+        self.v = v
+        self.vx = v[0]
+        self.vy = v[1]
         self.radius = radius
+        self.rho = np.sqrt(self.x**2 + self.y**2)
 
-    def check_screen_collide(self,borders,damp,roll):
+    def check_screen_collide(self,borders,damp=0.8,roll=0.99):
         if self.y > borders[1] - self.radius:
             self.y = borders[1] - self.radius + 1
             self.vy = self.vy * damp * (-1)
@@ -27,37 +30,42 @@ class Ball:
             self.x = -1
             self.vx = self.vx * damp * (-1)
 
-    def check_obj_collide(self,other):
-        if abs(np.round(self.x) - np.round(other.x)) <= 10 and abs(np.round(self.y) - np.round(other.y)) <= 10 :
-            print('True')
-            self_v_davor = (self.vx,self.vy)
-            other_v_davor = (other.vx,other.vy)
-            self.x = self.x + 10
-            self.y = self.y + 10
-            other.x = other.x + 10
-            other.y = other.y + 10
+    def can_collide(self,other):
+        if abs(self.rho - other.rho) > max(self.radius, other.radius):
+            return True
+        else:
+            return False
+
+    def gravitate(self,grav=(0.0,0.3),DT=1):
+        self.vx = self.vx + grav[0]*DT
+        self.vy = self.vy + grav[1]*DT
+        self.x = self.x + self.vx*DT + 0.5 * grav[0]*DT**2
+        self.y = self.y + self.vy*DT + 0.5 * grav[1]*DT**2
+
+    def collide(self,other):
+
+        if self.can_collide(other) and abs(self.rho - other.rho) <= max(self.radius,other.radius):
+
+            self_v_davor = self.v
+            other_v_davor = other.v
+
+            # Stoßprozess Anfang
             other.vx = self_v_davor[0] * 0.8
             other.vy = self_v_davor[1] * 0.8
             self.vx = other_v_davor[0] * 0.8
             self.vy = other_v_davor[1] * 0.8
-            
+            # Stoßprozess Ende
 
 def main():
 
     # Initialize PyGame
     pygame.init()
 
-    # Initial window size
-    s_width = 600
-    s_height = 800
-
-    # Define spacetime 
-    GRAVITY_X = 0.0
-    GRAVITY_Y = 0.3
-    DT = 1 # ms (discretization of time) 
+    #Setup
+    running = True
 
     # Making display screen
-    screen = pygame.display.set_mode((s_width, s_height), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((600, 800), pygame.RESIZABLE)
     pygame.display.set_caption('Flipper')
 
     # insert game icon
@@ -66,34 +74,9 @@ def main():
     # Clock
     clock = pygame.time.Clock()
 
-    # Setup 
-    running = True
-
     # Initialisation
-    damp = 0.8
-<<<<<<< HEAD
-    roll = 0.99
-    ball1 = Ball(100,150,0,0,10)
-    ball2 = Ball(200,150,0,0,10)
-=======
-
-    ball1_x = 590
-    ball1_y = 790
-    ball1_vx = 0
-    ball1_vy = 0
-
-    ball1_radius = 10
-
-    ball2_x = 200
-    ball2_y = 150
-    ball2_vx = 0
-    ball2_vy = 0
-
-    player_vx = 0
-    player_vy = 0
-
-    ball2_radius = 20
->>>>>>> 0514cfe2b038dd898562018289bd4e35fbaf444c
+    ball1 = Ball((100,150),(0,0),10)
+    ball2 = Ball((200,150),(0,0),10)
 
     # Colors, Background
     bg_orig = pygame.image.load(Path(__file__).parents[0] / Path("graphics/bkg.jpg")).convert()
@@ -120,7 +103,7 @@ def main():
 
     # Main event loop
     while running:
-
+    
         for event in pygame.event.get():
 
             if event.type == pygame.QUIT:
@@ -153,23 +136,14 @@ def main():
         pygame.draw.circle(screen, 'green', [ball2.x,ball2.y] , ball2.radius)
 
         # Motion
-        ball1.vy = ball1.vy + GRAVITY_Y*DT
-        ball2.vy = ball2.vy + GRAVITY_Y*DT
-
-        ball1.check_screen_collide(screen_borders,damp,roll)
-        ball2.check_screen_collide(screen_borders,damp,roll)
-        ball1.check_obj_collide(ball2)
-        # ball2.check_obj_collide(ball1)
-        # print(np.round(ball1.x),np.round(ball2.x))
-        
-
-
-        ball1.y = ball1.y + ball1.vy*DT + 0.5 * GRAVITY_Y*DT**2
-        ball2.y = ball2.y + ball2.vy*DT + 0.5 * GRAVITY_Y*DT**2
-        ball1.x = ball1.x + ball1.vx*DT + 0.5 * GRAVITY_X*DT**2
-        ball2.x = ball2.x + ball2.vx*DT + 0.5 * GRAVITY_X*DT**2
+        ball1.collide(ball2)
+        ball1.check_screen_collide(screen_borders)
+        ball2.check_screen_collide(screen_borders)
+        ball1.gravitate()
+        ball2.gravitate()
 
         snail_rect.left -= 5
+        
         if snail_rect.left < -100 : snail_rect.left = 800
         player_rect.left += 1
 
@@ -179,4 +153,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
