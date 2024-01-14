@@ -3,6 +3,69 @@ import numpy as np
 from pathlib import Path
 from numpy.random import randint
 
+class Vector:
+    """
+    A class representing a vector in 2 dimensions.
+
+    Attributes:
+        x : float or int
+        y : float or int
+
+    Methods:
+        __init__(self, x, y, z)
+        __str__(self)
+        Operator +
+        Operator *
+        abs(self)
+    """
+
+    def __init__(self, x, y):
+        """
+        Initialize a new instance of vector
+        """
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        """
+        return a string for the class vector as "Vector(x,y,z)"
+        """
+        return f"Vector({self.x}, {self.y})"
+
+    def __add__(self,other):
+        """
+        Overload the + Operator for the class Vector
+        Implements the summation of two instances of class Vector
+        """
+        return Vector(self.x + other.x, self.y + other.y)
+    
+    def __mul__(self,other):
+        """ 
+        Overload the * Operator for the class Vector including
+        Type-based dispatch:
+            - multiplication of two instances of class Vector:
+              returns a float/int,  the scalar product
+            - multiplication of an instance of class Vector and a scalar (float or int):
+              returns a Vector, each component of the Vector is multiplied with the value
+        """
+        if isinstance(other, Vector):
+            return self.mul_vector(other)
+        if isinstance(other, float):
+            return self.mul_scalar(other)
+        if isinstance(other, int):
+            return self.mul_scalar(other)
+        
+    def mul_vector(self, other):
+        return float(self.x*other.x + self.y*other.y)
+
+    def mul_scalar(self, other):
+        return Vector(self.x*other, self.y*other)
+
+    def abs(self):
+        """
+        Return the absolute value of the Vector instance.
+        """
+        return float(np.sqrt((self.x*self.x + self.y*self.y)))
 class Ball:
 
     def __init__(self,r,v,radius):
@@ -13,7 +76,6 @@ class Ball:
         self.vx = v[0]
         self.vy = v[1]
         self.radius = radius
-        self.rho = np.sqrt(self.x**2 + self.y**2)
 
     def check_screen_collide(self,borders,damp=0.8,roll=0.99):
         if self.y > borders[1] - self.radius:
@@ -30,31 +92,39 @@ class Ball:
             self.x = -1
             self.vx = self.vx * damp * (-1)
 
-    def can_collide(self,other):
-        if abs(self.rho - other.rho) > max(self.radius, other.radius):
-            return True
-        else:
-            return False
+    def check_collision(self,other):
 
-    def gravitate(self,grav=(0.0,0.3),DT=1):
-        self.vx = self.vx + grav[0]*DT
-        self.vy = self.vy + grav[1]*DT
-        self.x = self.x + self.vx*DT + 0.5 * grav[0]*DT**2
-        self.y = self.y + self.vy*DT + 0.5 * grav[1]*DT**2
+        connecting_vec = (other.x - self.x, other.y - self.y)
+        distance = np.sqrt(connecting_vec[0]**2 + connecting_vec[1]**2)
 
-    def collide(self,other):
+        if distance <= max(self.radius, other.radius):
 
-        if self.can_collide(other) and abs(self.rho - other.rho) <= max(self.radius,other.radius):
+            self_v_davor = [0.0,0.0]
+            self_v_davor[0] = self.vx
+            self_v_davor[1] = self.vy
+            other_v_davor = [0.0,0.0]
+            other_v_davor[0] = other.vx
+            other_v_davor[1] = other.vy
 
-            self_v_davor = self.v
-            other_v_davor = other.v
+            #Versatz
+            self.x -= connecting_vec[0]
+            self.y -= connecting_vec[1]
+            other.x += connecting_vec[0]
+            other.y += connecting_vec[1]
 
             # Stoßprozess Anfang
             other.vx = self_v_davor[0] * 0.8
             other.vy = self_v_davor[1] * 0.8
             self.vx = other_v_davor[0] * 0.8
             self.vy = other_v_davor[1] * 0.8
-            # Stoßprozess Ende
+            # Stoßprozess Ende       
+
+    def gravitate(self,grav=(0.0,0.3),DT=1):
+
+        self.vx = self.vx + grav[0]*DT
+        self.vy = self.vy + grav[1]*DT
+        self.x = self.x + self.vx*DT + 0.5 * grav[0]*DT**2
+        self.y = self.y + self.vy*DT + 0.5 * grav[1]*DT**2
 
 def main():
 
@@ -136,7 +206,7 @@ def main():
         pygame.draw.circle(screen, 'green', [ball2.x,ball2.y] , ball2.radius)
 
         # Motion
-        ball1.collide(ball2)
+        ball1.check_collision(ball2)
         ball1.check_screen_collide(screen_borders)
         ball2.check_screen_collide(screen_borders)
         ball1.gravitate()
