@@ -94,8 +94,8 @@ class Ball:
 
     def check_collision(self,other):
 
-        connecting_vec = (other.x - self.x, other.y - self.y)
-        distance = np.sqrt(connecting_vec[0]**2 + connecting_vec[1]**2)
+        connecting_vec = Vector(other.x - self.x, other.y - self.y)
+        distance = connecting_vec.abs()
 
         if distance <= max(self.radius, other.radius):
 
@@ -107,10 +107,10 @@ class Ball:
             other_v_davor[1] = other.vy
 
             #Versatz
-            self.x -= connecting_vec[0]
-            self.y -= connecting_vec[1]
-            other.x += connecting_vec[0]
-            other.y += connecting_vec[1]
+            self.x -= connecting_vec.x
+            self.y -= connecting_vec.y
+            other.x += connecting_vec.x
+            other.y += connecting_vec.y
 
             # Stoßprozess Anfang
             other.vx = self_v_davor[0] * 0.8
@@ -211,7 +211,6 @@ def main():
         ball2.check_screen_collide(screen_borders)
         ball1.gravitate()
         ball2.gravitate()
-
         snail_rect.left -= 5
         
         if snail_rect.left < -100 : snail_rect.left = 800
