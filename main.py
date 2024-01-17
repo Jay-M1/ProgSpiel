@@ -2,6 +2,7 @@ import pygame
 import numpy as np
 from pathlib import Path
 from numpy.random import randint
+from copy import copy
 
 class Vector:
     """
@@ -39,92 +40,82 @@ class Vector:
         """
         return Vector(self.x + other.x, self.y + other.y)
     
-    def __mul__(self,other):
-        """ 
-        Overload the * Operator for the class Vector including
-        Type-based dispatch:
-            - multiplication of two instances of class Vector:
-              returns a float/int,  the scalar product
-            - multiplication of an instance of class Vector and a scalar (float or int):
-              returns a Vector, each component of the Vector is multiplied with the value
-        """
-        if isinstance(other, Vector):
-            return self.mul_vector(other)
-        if isinstance(other, float):
-            return self.mul_scalar(other)
-        if isinstance(other, int):
-            return self.mul_scalar(other)
-        
-    def mul_vector(self, other):
-        return float(self.x*other.x + self.y*other.y)
-
-    def mul_scalar(self, other):
-        return Vector(self.x*other, self.y*other)
+    def __sub__(self, other):
+        if isinstance(other, self.__class__):
+            return Vector(self.x - other.x, self.y - other.y)
+        return Vector(self.x - other, self.y - other)
+    
+    def __mul__(self, other):
+        if isinstance(other, self.__class__):
+            return Vector(self.x * other.x, self.y * other.y)
+        return Vector(self.x * other, self.y * other)
 
     def abs(self):
         """
         Return the absolute value of the Vector instance.
         """
         return float(np.sqrt((self.x*self.x + self.y*self.y)))
+ 
+
+   
 class Ball:
 
-    def __init__(self,r,v,radius):
-        self.r = r
-        self.x = r[0]
-        self.y = r[1]
-        self.v = v
-        self.vx = v[0]
-        self.vy = v[1]
+    def __init__(self, position : Vector, velocity : Vector, radius):
+        self.position = copy(position)
+        self.velocity = copy(velocity)
         self.radius = radius
 
     def check_screen_collide(self,borders,damp=0.8,roll=0.99):
-        if self.y > borders[1] - self.radius:
-            self.y = borders[1] - self.radius + 1
-            self.vy = self.vy * damp * (-1)
-            self.vx = self.vx * roll         # Rollwiderstand
-        if self.y < 0:
-            self.y = -1
-            self.vy = self.vy * damp * (-1)
-        if self.x > borders[0]:
-            self.x = borders[0] + 1
-            self.vx = self.vx * damp * (-1)
-        if self.x < 0:
-            self.x = -1
-            self.vx = self.vx * damp * (-1)
+        if self.position.y > borders.y - self.radius:
+            self.position.y = borders.y - self.radius + 1
+            self.velocity.y = self.velocity.y * damp * (-1)
+            self.velocity.x = self.velocity.x * roll         # Rollwiderstand
+        if self.position.y < 0:
+            self.position.y = -1
+            self.velocity.y = self.velocity.y * damp * (-1)
+        if self.position.x > borders.x:
+            self.position.x = borders.x + 1
+            self.velocity.x = self.velocity.x * damp * (-1)
+        if self.position.x < 0:
+            self.position.x = -1
+            self.velocity.x = self.velocity.x * damp * (-1)
 
     def check_collision(self,other):
 
-        connecting_vec = Vector(other.x - self.x, other.y - self.y)
+        connecting_vec = other.position - self.position
         distance = connecting_vec.abs()
 
         if distance <= max(self.radius, other.radius):
 
-            self_v_davor = [0.0,0.0]
-            self_v_davor[0] = self.vx
-            self_v_davor[1] = self.vy
-            other_v_davor = [0.0,0.0]
-            other_v_davor[0] = other.vx
-            other_v_davor[1] = other.vy
-
+            self_v_davor = self.velocity
+            other_v_davor = other.velocity 
             #Versatz
-            self.x -= connecting_vec.x
-            self.y -= connecting_vec.y
-            other.x += connecting_vec.x
-            other.y += connecting_vec.y
+            self.position -= connecting_vec
+            other.position += connecting_vec
 
             # Stoßprozess Anfang
-            other.vx = self_v_davor[0] * 0.8
-            other.vy = self_v_davor[1] * 0.8
-            self.vx = other_v_davor[0] * 0.8
-            self.vy = other_v_davor[1] * 0.8
+            other.velocity = self_v_davor * 0.8
+            self.velocity = other_v_davor * 0.8
             # Stoßprozess Ende       
 
-    def gravitate(self,grav=(0.0,0.3),DT=1):
+    def gravitate(self,grav=Vector(0.0,0.3),DT=1):
 
-        self.vx = self.vx + grav[0]*DT
-        self.vy = self.vy + grav[1]*DT
-        self.x = self.x + self.vx*DT + 0.5 * grav[0]*DT**2
-        self.y = self.y + self.vy*DT + 0.5 * grav[1]*DT**2
+        self.velocity = self.velocity + grav*DT
+        self.position = self.position + self.velocity*DT + grav*DT**2*0.5
+class Rect:
+    def __init__(self, position, right, left, top, bottom):
+        self.posotion = copy(position)
+        self.right = right
+        self.left = left
+        self.top = top
+        self.bottom = bottom
+        
+    def collide_with_ball(self, ball):
+        
+        if ball.position.x + ball.radius >= self.right and ball.position.y >= self.top:
+            ball.velocity = ball.velocity * -0.8
+        if ball.position.x - ball.radius <= self.left and ball.position.y >= self.top:
+            ball.velocity = ball.velocity * -0.8
 
 def main():
 
@@ -144,9 +135,10 @@ def main():
     # Clock
     clock = pygame.time.Clock()
 
-    # Initialisation
-    ball1 = Ball((100,150),(0,0),10)
-    ball2 = Ball((200,150),(0,0),10)
+    # Initialisation 
+    ball1 = Ball(position = Vector(100,150),velocity = Vector(0,0), radius=10)
+    ball2 = Ball(position = Vector(200,150),velocity = Vector(0,0),radius=10)
+    rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75 )
 
     # Colors, Background
     bg_orig = pygame.image.load(Path(__file__).parents[0] / Path("graphics/bkg.jpg")).convert()
@@ -179,10 +171,10 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                ball1.vx += randint(-10,10)
-                ball1.vy += randint(-10,10)
-                ball2.vx += randint(-10,10)
-                ball2.vy += randint(-10,10)
+                ball1.velocity.x += randint(-10,10)
+                ball1.velocity.y += randint(-10,10)
+                ball2.velocity.x += randint(-10,10)
+                ball2.velocity.y += randint(-10,10)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     print('key down')
@@ -193,7 +185,7 @@ def main():
         s_width, s_height = screen.get_width(), screen.get_height()
         bg = pygame.transform.scale(bg_orig, (s_width, s_height))
         screen.blit(bg, (0, 0))
-        screen_borders = (screen.get_width(),screen.get_height())
+        screen_borders = Vector(screen.get_width(),screen.get_height())
 
         # Shapes
         pygame.draw.rect(screen,'Pink',text_rect)
@@ -202,13 +194,16 @@ def main():
         screen.blit(snail_surface,snail_rect)
         screen.blit(player_surf,player_rect)
         pygame.draw.ellipse(screen, 'Brown', pygame.Rect(10,100,200,100))
-        pygame.draw.circle(screen, (35, 161, 224), [ball1.x,ball1.y] , ball1.radius)
-        pygame.draw.circle(screen, 'green', [ball2.x,ball2.y] , ball2.radius)
+        pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
+        pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
+        pygame.draw.rect(screen, "blue", [400, 300, 75, 75],0)
 
         # Motion
         ball1.check_collision(ball2)
         ball1.check_screen_collide(screen_borders)
         ball2.check_screen_collide(screen_borders)
+        #rect1.collide_with_ball(ball1)
+        #rect1.collide_with_ball(ball2)
         ball1.gravitate()
         ball2.gravitate()
         snail_rect.left -= 5
