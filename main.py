@@ -91,8 +91,8 @@ class Ball:
             self_v_davor = self.velocity
             other_v_davor = other.velocity 
             #Versatz
-            self.position -= connecting_vec
-            other.position += connecting_vec
+            self.r = self.r + connecting_vec * (-1/distance * 1)      # Klasse Vector versteht nur + und * deswegen diese komische Schreibweise hier. 
+            other.r = other.r + connecting_vec * (1/distance * 1)     # verschiebt die Bälle nach dem Stoß um 1 Pixel weg voneinander
 
             # Stoßprozess Anfang
             other.velocity = self_v_davor * 0.8
@@ -119,6 +119,9 @@ class Rect:
             ball.velocity = ball.velocity * -0.8
 
 def main():
+    
+    def start():
+        ball1.v = Vector(5,-33)
 
     # Initialize PyGame
     pygame.init()
@@ -146,7 +149,7 @@ def main():
     test_font = pygame.font.Font(None,50)
 
     # Surfaces
-    text_surface = test_font.render('ff', False, 'Black')
+    text_surface = test_font.render('Keys: Start: "click", Random: "Space", Reset: "r"', False, 'Black')
     text_rect = text_surface.get_rect(center = (400,50))
 
     snail_surface = pygame.image.load('graphics/snail/snail1.png').convert_alpha()
@@ -172,13 +175,18 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
-                ball1.velocity.x += randint(-10,10)
-                ball1.velocity.y += randint(-10,10)
-                ball2.velocity.x += randint(-10,10)
-                ball2.velocity.y += randint(-10,10)
+                start()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    print('key down')
+                    ball1.v.x += randint(-10,10)
+                    ball1.v.y += randint(-10,10)
+                    ball2.v.x += randint(-10,10)
+                    ball2.v.y += randint(-10,10)
+                if event.key == pygame.K_r:
+                    ball1.v = Vector(0, 0)
+                    ball1.r = Vector(ball1.radius, screen.get_height())
+                    ball2.v = Vector(0.0, 0.0)
+                    ball2.r = Vector(500, screen.get_height())
 
             continue
 
