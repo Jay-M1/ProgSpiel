@@ -3,6 +3,7 @@ import numpy as np
 from pathlib import Path
 from numpy.random import randint
 from copy import copy
+import math
 
 class Vector:
     """
