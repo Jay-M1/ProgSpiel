@@ -57,8 +57,6 @@ class Vector:
         """
         return float(np.sqrt((self.x*self.x + self.y*self.y)))
  
-
-   
 class Ball:
 
     def __init__(self, position : Vector, velocity : Vector, radius):
@@ -103,6 +101,7 @@ class Ball:
 
         self.velocity = self.velocity + grav*DT
         self.position = self.position + self.velocity*DT + grav*DT**2*0.5
+        
 class Rect:
     def __init__(self, position, right, left, top, bottom):
         self.posotion = copy(position)
@@ -117,11 +116,19 @@ class Rect:
             ball.velocity = ball.velocity * -0.8
         if ball.position.x - ball.radius <= self.left and ball.position.y >= self.top:
             ball.velocity = ball.velocity * -0.8
+            
+class Start:
+    def __inti__(self, a):
+        self.a = a
+        
+   # def push(self, a):
+        
+        
 
 def main():
-    
-    def start():
-        ball1.velocity = Vector(5,-33)
+    def start(position, radius):
+        if position.x == radius and position.y >= 790:
+            ball1.velocity = Vector(5,-33)
 
     # Initialize PyGame
     pygame.init()
@@ -140,8 +147,8 @@ def main():
     clock = pygame.time.Clock()
 
     # Initialisation 
-    ball1 = Ball(position = Vector(100,150),velocity = Vector(0,0), radius=10)
-    ball2 = Ball(position = Vector(200,150),velocity = Vector(0,0),radius=10)
+    ball1 = Ball(Vector(10, screen.get_height()),Vector(0,0),10)
+    ball2 = Ball(Vector(500, screen.get_height()),Vector(0,0),10)
     rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75 )
 
     # Colors, Background
@@ -155,18 +162,9 @@ def main():
     snail_surface = pygame.image.load('graphics/snail/snail1.png').convert_alpha()
     snail_rect = snail_surface.get_rect(midbottom = (400, 400))
 
-    player_surf = pygame.image.load('graphics/player/player_walk_1.png').convert_alpha()
-    player_rect = player_surf.get_rect(midbottom = (90,400))
-
-    ###############################################################################################################################################################################################################################
-    #keys = pygame.key.get_pressed()
-        #if keys[pygame.K_SPACE]:
-            #print('jump')
-    #if player_rect.colliderect(snail_rect): print('collision')
-    #mouse_pos = pygame.mouse.get_pos()
-    #if player_rect.collidepoint(mouse_pos): print(pygame.mouse.get_pressed())
-    ###############################################################################################################################################################################################################################
-
+    starts = 5
+    
+    rot =  30 % 360
     # Main event loop
     while running:
     
@@ -174,8 +172,9 @@ def main():
 
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                start()
+            if event.type == pygame.MOUSEBUTTONDOWN and starts >= 0:
+                start(ball1.position, ball1.radius)
+                starts -= 1
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     ball1.velocity = ball1.velocity + Vector(randint(-10,10), randint(-10,10))
@@ -199,7 +198,6 @@ def main():
         pygame.draw.rect(screen,'Pink',text_rect,200)
         screen.blit(text_surface,text_rect)
         screen.blit(snail_surface,snail_rect)
-        screen.blit(player_surf,player_rect)
         pygame.draw.ellipse(screen, 'Brown', pygame.Rect(10,100,200,100))
         pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
         pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
@@ -213,10 +211,7 @@ def main():
         #rect1.collide_with_ball(ball2)
         ball1.gravitate()
         ball2.gravitate()
-        snail_rect.left -= 5
         
-        if snail_rect.left < -100 : snail_rect.left = 800
-        player_rect.left += 1
 
         # Settings
         pygame.display.flip() # Update the display of the full screen
