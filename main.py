@@ -5,6 +5,9 @@ from numpy.random import randint
 from copy import copy
 import math
 
+white = (255, 255, 255)
+black = (0, 0, 0)
+
 class Vector:
     """
     A class representing a vector in 2 dimensions.
@@ -117,9 +120,25 @@ class Rect:
         if ball.position.x - ball.radius <= self.left and ball.position.y >= self.top:
             ball.velocity = ball.velocity * -0.8
             
-class Start:
-    def __inti__(self, a):
-        self.a = a
+class RotatingObject(pygame.sprite.Sprite):
+    def __init__(self, position):
+        super().__init__()
+        self.org_image = pygame.image.load("basebat_blue.png").convert_alpha()
+        self.image = self.org_image
+        self.rect = self.image.get_rect(center=(position.x, position.y))
+        self.angle = 0
+        self.mask = pygame.mask.from_surface(self.org_image)
+
+    def update(self):
+        self.image = pygame.transform.rotate(self.org_image, self.angle)
+        self.angle += 10
+        self.rect = self.image.get_rect(center=self.rect.center)
+        
+    def check_collision(self, ball):
+        if soldier_mask.overlap(bullet_mask, (pos[0] - soldier_rect.x, pos[1] - soldier_rect.y)):
+            col = RED
+        else:
+            col = GREEN
         
    # def push(self, a):
         
@@ -149,24 +168,29 @@ def main():
     # Initialisation 
     ball1 = Ball(Vector(10, screen.get_height()),Vector(0,0),10)
     ball2 = Ball(Vector(500, screen.get_height()),Vector(0,0),10)
-    rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75 )
-
+    #rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75)
+    
     # Colors, Background
     bg_orig = pygame.image.load(Path(__file__).parents[0] / Path("graphics/bkg.jpg")).convert()
     test_font = pygame.font.Font(None,50)
+    
+    #balls 
+    ball_surface = pygame.Surface((screen.get_width(), screen.get_height()))
 
     # Surfaces
     text_surface = test_font.render('Keys: Start: "click", Random: "Space", Reset: "r"', False, 'Black')
     text_rect = text_surface.get_rect(center = (400,50))
-
-    snail_surface = pygame.image.load('graphics/snail/snail1.png').convert_alpha()
-    snail_rect = snail_surface.get_rect(midbottom = (400, 400))
+    
+    # Starter
+    rotating_object = RotatingObject(Vector(screen.get_width() // 2, screen.get_height() // 2))
+    all_sprites = pygame.sprite.Group(rotating_object)
 
     starts = 5
     
     rot =  30 % 360
     # Main event loop
     while running:
+        
     
         for event in pygame.event.get():
 
@@ -177,32 +201,33 @@ def main():
                 starts -= 1
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    ball1.velocity = ball1.velocity + Vector(randint(-10,10), randint(-10,10))
-                    ball2.velocity = ball2.velocity + Vector(randint(-10,10), randint(-10,10))
+                    all_sprites.update()
                 if event.key == pygame.K_r:
                     ball1.velocity = Vector(0, 0)
                     ball1.position = Vector(ball1.radius, screen.get_height())
                     ball2.velocity = Vector(0.0, 0.0)
                     ball2.position = Vector(500, screen.get_height())
+                if event.key == pygame.K_m:
+                    ball1.velocity.x += randint(-10,10)
+                    ball1.velocity.y += randint(-10,10)
+                    ball2.velocity.x += randint(-10,10)
+                    ball2.velocity.y += randint(-10,10)
 
             continue
-
+        
         # Adjust screen
         s_width, s_height = screen.get_width(), screen.get_height()
         bg = pygame.transform.scale(bg_orig, (s_width, s_height))
         screen.blit(bg, (0, 0))
         screen_borders = Vector(screen.get_width(),screen.get_height())
-
+        all_sprites.draw(screen)
         # Shapes
-        pygame.draw.rect(screen,'Pink',text_rect)
-        pygame.draw.rect(screen,'Pink',text_rect,200)
+        #pygame.draw.rect(screen,'Pink',text_rect)
+        #pygame.draw.rect(screen,'Pink',text_rect,200)
         screen.blit(text_surface,text_rect)
-        screen.blit(snail_surface,snail_rect)
-        pygame.draw.ellipse(screen, 'Brown', pygame.Rect(10,100,200,100))
-        pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
-        pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
-        pygame.draw.rect(screen, "blue", [400, 300, 75, 75],0)
-
+        pygame.draw.circle(ball_surface, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
+        pygame.draw.circle(ba, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
+    
         # Motion
         ball1.check_collision(ball2)
         ball1.check_screen_collide(screen_borders)
@@ -211,6 +236,7 @@ def main():
         #rect1.collide_with_ball(ball2)
         ball1.gravitate()
         ball2.gravitate()
+        rotating_object.check_collision(ball1)
         
 
         # Settings
