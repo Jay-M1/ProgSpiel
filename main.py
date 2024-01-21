@@ -219,8 +219,8 @@ def main():
         #pygame.draw.rect(screen,'Pink',text_rect)
         #pygame.draw.rect(screen,'Pink',text_rect,200)
         screen.blit(text_surface,text_rect)
-        pygame.draw.circle(ball_surface, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
-        pygame.draw.circle(ba, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
+        pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
+        pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
     
         # Motion
         ball1.check_collision(ball2)
