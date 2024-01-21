@@ -230,7 +230,7 @@ def main():
         #rect1.collide_with_ball(ball2)
         ball1.gravitate()
         ball2.gravitate()
-        rotating_object.check_collision(ball1)
+        #rotating_object.check_collision(ball1)
         
 
         # Settings
