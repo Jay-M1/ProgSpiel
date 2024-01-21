@@ -134,12 +134,6 @@ class RotatingObject(pygame.sprite.Sprite):
         self.angle += 10
         self.rect = self.image.get_rect(center=self.rect.center)
         
-    def check_collision(self, ball):
-        if soldier_mask.overlap(bullet_mask, (pos[0] - soldier_rect.x, pos[1] - soldier_rect.y)):
-            col = RED
-        else:
-            col = GREEN
-        
    # def push(self, a):
         
         
