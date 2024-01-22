@@ -59,7 +59,15 @@ class Vector:
         Return the absolute value of the Vector instance.
         """
         return float(np.sqrt((self.x*self.x + self.y*self.y)))
- 
+    def rotate(self, angle):
+        """
+        Returns:
+            rotatted vector, angle in degrees
+        """
+        angle_radians = math.radians(angle)
+        new_x = self.x * math.cos(angle_radians) - self.y * math.sin(angle_radians)
+        new_y = self.x * math.sin(angle_radians) + self.y * math.cos(angle_radians)
+        return Vector(new_x, new_y)
 class Ball:
 
     def __init__(self, position : Vector, velocity : Vector, radius):
@@ -121,28 +129,41 @@ class Rect:
             ball.velocity = ball.velocity * -0.8
             
 class RotatingObject(pygame.sprite.Sprite):
-    def __init__(self, position):
+    def __init__(self, position, pivot):
         super().__init__()
-        self.org_image = pygame.image.load("basebat_blue.png").convert_alpha()
-        self.image = self.org_image
-        self.rect = self.image.get_rect(center=(position.x, position.y))
+        self.image = pygame.image.load("basebat_blue.png").convert_alpha()
+        self.original_image = self.image
+        self.rect = self.image.get_rect(topleft = (position.x - pivot.x, position.y - pivot.y))
+        self.position = position
+        self.pivot = pivot
         self.angle = 0
-        self.mask = pygame.mask.from_surface(self.org_image)
-
-    def update(self):
-        self.image = pygame.transform.rotate(self.org_image, self.angle)
-        self.angle += 10
-        self.rect = self.image.get_rect(center=self.rect.center)
         
+    def update(self):
+        self.angle += 1
+        image_rect = self.original_image.get_rect(topleft = (self.position.x - self.pivot.x, self.position.y - self.pivot.y))
+        offset_center_to_pivot = self.position - Vector(image_rect.center[0], image_rect.center[1])
+        rotated_offset = offset_center_to_pivot.rotate(-self.angle) # dreht in die andere Richtung wie pygame.transform.rotate()
+        rotated_image_center = (self.position.x - rotated_offset.x, self.position.y - rotated_offset.y)
+        self.image = pygame.transform.rotate(self.original_image, self.angle)
+        self.rect = self.image.get_rect(center = rotated_image_center)
+    
+  
    # def push(self, a):
         
         
 
 def main():
     def start(position, radius):
-        if position.x == radius and position.y >= 790:
+        if position.x == radius and position.y == 761:
             ball1.velocity = Vector(5,-33)
-
+    def reset():
+        ball1.velocity = Vector(0, 0)
+        ball1.position = Vector(ball1.radius, screen.get_height())
+        ball2.velocity = Vector(0.0, 0.0)
+        ball2.position = Vector(500, screen.get_height())
+    def GameOver():
+        reset()
+        
     # Initialize PyGame
     pygame.init()
 
@@ -160,6 +181,7 @@ def main():
     clock = pygame.time.Clock()
 
     # Initialisation 
+    hole_h = 30
     ball1 = Ball(Vector(10, screen.get_height()),Vector(0,0),10)
     ball2 = Ball(Vector(500, screen.get_height()),Vector(0,0),10)
     #rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75)
@@ -174,9 +196,17 @@ def main():
     # Surfaces
     text_surface = test_font.render('Keys: Start: "click", Random: "Space", Reset: "r"', False, 'Black')
     text_rect = text_surface.get_rect(center = (400,50))
+    hole_w = 250
+    hole_h = hole_h
+    hole_color = '#E6E6FA'
+    hole1_surface = pygame.Surface((hole_w,hole_h))
+    hole1_surface.fill(hole_color)
+    hole2_surface = pygame.Surface((hole_w,hole_h))
+    hole2_surface.fill(hole_color)
+    
     
     # Starter
-    rotating_object = RotatingObject(Vector(screen.get_width() // 2, screen.get_height() // 2))
+    rotating_object = RotatingObject(Vector(screen.get_width() // 2, screen.get_height() // 2), Vector(30, 30))
     all_sprites = pygame.sprite.Group(rotating_object)
 
     starts = 5
@@ -195,7 +225,9 @@ def main():
                 starts -= 1
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    all_sprites.update()
+                    for i in range(30):
+                        all_sprites.update()
+                        i += 1
                 if event.key == pygame.K_r:
                     ball1.velocity = Vector(0, 0)
                     ball1.position = Vector(ball1.radius, screen.get_height())
@@ -213,7 +245,8 @@ def main():
         s_width, s_height = screen.get_width(), screen.get_height()
         bg = pygame.transform.scale(bg_orig, (s_width, s_height))
         screen.blit(bg, (0, 0))
-        screen_borders = Vector(screen.get_width(),screen.get_height())
+        ground_level = screen.get_height()-hole_h
+        screen_borders = Vector(screen.get_width(),ground_level)
         all_sprites.draw(screen)
         # Shapes
         #pygame.draw.rect(screen,'Pink',text_rect)
@@ -221,18 +254,27 @@ def main():
         screen.blit(text_surface,text_rect)
         pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
         pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
+        
+        hole1_rect = hole1_surface.get_rect(bottomleft = (0,screen.get_height()))
+        hole2_rect = hole2_surface.get_rect(bottomright = (screen.get_width(),screen.get_height()))
+        screen.blit(hole1_surface,hole1_rect)
+        screen.blit(hole2_surface,hole2_rect)
     
         # Motion
         ball1.check_collision(ball2)
-        ball1.check_screen_collide(screen_borders)
-        ball2.check_screen_collide(screen_borders)
         #rect1.collide_with_ball(ball1)
         #rect1.collide_with_ball(ball2)
         ball1.gravitate()
         ball2.gravitate()
         #rotating_object.check_collision(ball1)
         
-
+        for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
+            if not (abs(ball.position.x - screen.get_width()/2) < (screen.get_width() - 2*hole_w)/2
+                and screen.get_height() - ball.position.y < hole_h + ball.radius):
+                ball.check_screen_collide(screen_borders)
+                continue
+            # Hier ist der Ball im Korb drin
+            GameOver()
         # Settings
         pygame.display.flip() # Update the display of the full screen
         clock.tick(60) # 60 frames per second
