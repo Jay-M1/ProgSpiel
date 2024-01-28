@@ -62,3 +62,6 @@ class Vector:
         new_x = self.x * math.cos(angle_radians) - self.y * math.sin(angle_radians)
         new_y = self.x * math.sin(angle_radians) + self.y * math.cos(angle_radians)
         return Vector(new_x, new_y)
+    
+    def int_tuple(self):
+        return int(self.x), int(self.y)
