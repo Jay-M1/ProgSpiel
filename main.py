@@ -54,12 +54,28 @@ class Ball:
         self.position = self.position + self.velocity*DT + grav*DT**2*0.5
         
 class Rect:
-    def __init__(self, position, right, left, top, bottom):
-        self.posotion = copy(position)
-        self.right = right
-        self.left = left
-        self.top = top
-        self.bottom = bottom
+    def __init__(self, position, status):
+        self.original_surface = pygame.Surface((100, 100), pygame.SRCALPHA)
+        pygame.draw.rect(self.original_surface, (0, 255, 0), (0, 0, 100, 20))
+        if status == "static":
+            self.original_surface = pygame.transform.rotate(self.original_surface, 45)
+        self.surface = self.original_surface
+        self.position = position
+        self.angle = 0 
+        self.rect = self.surface.get_rect(center=self.position.int_tuple())
+
+    def rotate(self, angle=0):
+        self.angle += angle
+
+        # Rotate the surface
+        rotated_surface = pygame.transform.rotate(self.original_surface, self.angle)
+
+        # Calculate the rect based on the center of the original surface and position
+        offset = Vector(rotated_surface.get_width() // 2, rotated_surface.get_height() // 2)
+        self.rect = rotated_surface.get_rect(center=(self.position + offset).int_tuple())
+
+        # Update the current surface
+        self.surface = rotated_surface
         
     def collide_with_ball(self, ball):
         
@@ -67,9 +83,6 @@ class Rect:
             ball.velocity = ball.velocity * -0.8
         if ball.position.x - ball.radius <= self.left and ball.position.y >= self.top:
             ball.velocity = ball.velocity * -0.8
-            
-    def rotate(self, w):
-        rotate = True
             
 class RotatingObject(pygame.sprite.Sprite):
     def __init__(self, position, pivot, rotation, direction):
@@ -161,8 +174,6 @@ def main():
     bg_orig = pygame.image.load(Path(__file__).parents[0] / Path("graphics/bkg.jpg")).convert()
     test_font = pygame.font.Font(None,25)
     
-    #balls 
-    ball_surface = pygame.Surface((screen.get_width(), screen.get_height()))
 
     # Surfaces
     text_surface = test_font.render('Keys: Start: "click", Random: "Space", Reset: "r"', False, 'Black')
@@ -185,12 +196,16 @@ def main():
     rotating_object2.update_right()
     all_sprites = pygame.sprite.Group(rotating_object,rotating_object2)
     
+    #Rects
+    rect1 = Rect(Vector(300,300), status="static")
+    rect2 = Rect(Vector(100,200), status= None)
     
     starts = 5
     
     rot =  30 % 360
     # Main event loop
     while running:
+
         
         # Adjust screen
         s_width, s_height = screen.get_width(), screen.get_height()
@@ -231,8 +246,6 @@ def main():
             continue
         
         
-        
-        
         # Events
         all_sprites.draw(screen)
         # Shapes
@@ -246,11 +259,15 @@ def main():
         hole2_rect = hole2_surface.get_rect(bottomright = (screen.get_width(),screen.get_height()))
         screen.blit(hole1_surface,hole1_rect)
         screen.blit(hole2_surface,hole2_rect)
+        
+        
+        screen.blit(rect1.surface,(rect1.position.x,rect1.position.y))
+        rect2.rotate(1)
+        screen.blit(rect2.surface,(rect2.position.x,rect2.position.y))
+        
     
         # Motion
         ball1.check_collision(ball2)
-        #rect1.collide_with_ball(ball1)
-        #rect1.collide_with_ball(ball2)
         ball1.gravitate()
         ball2.gravitate()
         #rotating_object.check_collision(ball1)
