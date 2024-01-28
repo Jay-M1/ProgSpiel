@@ -66,15 +66,8 @@ class Rect:
 
     def rotate(self, angle=0):
         self.angle += angle
-
-        # Rotate the surface
         rotated_surface = pygame.transform.rotate(self.original_surface, self.angle)
-
-        # Calculate the rect based on the center of the original surface and position
-        offset = Vector(rotated_surface.get_width() // 2, rotated_surface.get_height() // 2)
-        self.rect = rotated_surface.get_rect(center=(self.position + offset).int_tuple())
-
-        # Update the current surface
+        self.rect = rotated_surface.get_rect(center=(self.position).int_tuple())
         self.surface = rotated_surface
         
     def collide_with_ball(self, ball):
