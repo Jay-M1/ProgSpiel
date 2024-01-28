@@ -85,7 +85,6 @@ class RotatingObject(pygame.sprite.Sprite):
             self.rect = self.image.get_rect(midleft = (position.x - pivot.x, position.y - pivot.y))
         self.position = position
         self.pivot = pivot
-        self.mask = pygame.mask.from_surface(self.image)
         self.angle = 0
         
     def update_right(self):
@@ -109,8 +108,19 @@ class RotatingObject(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
     
   
-   # def push(self, a):
-        
+
+def check_collision(ball,other):
+    ball_mask = pygame.mask.from_surface(pygame.Surface((2 * ball.radius, 2 * ball.radius), pygame.SRCALPHA))
+    flipper_mask = pygame.mask.from_surface(other.image)
+
+    # Set the positions of the masks relative to their respective objects
+    ball_mask_rect = ball_mask.get_rect(center=(ball.position.x, ball.position.y))
+    flipper_mask_rect = flipper_mask.get_rect(center=(other.position.x, other.position.y))
+
+    # Check for overlap
+    overlap = ball_mask.overlap(flipper_mask, (flipper_mask_rect.x - ball_mask_rect.x, flipper_mask_rect.y - ball_mask_rect.y))
+
+    return overlap
         
 
 def main():
@@ -124,33 +134,7 @@ def main():
         ball2.position = Vector(500, screen.get_height())
     def GameOver():
         reset()
-        
-    def check_collision(ball_x, ball_y, ball_radius, rect_x, rect_y, mask):
-        """
-        # Berechnung des Abstands zwischen Ballmittelpunkt und Rechteckmittelpunkt
-        dx = abs(ball_x - (rect_x + rect_width/2))
-        dy = abs(ball_y - (rect_y + rect_height/2))
 
-        # Prüfen, ob der Abstand kleiner ist als die Summe der Radien
-        if dx > rect_width/2 + ball_radius or dy > rect_height/2 + ball_radius:
-            return False
-        if dx <= rect_width/2 or dy <= rect_height/2:
-            return True
-
-        # Prüfen auf Kollision an den Ecken des Rechtecks
-        return (dx - rect_width/2)**2 + (dy - rect_height/2)**2 <= ball_radius**2
-        """
-    # Maske für den Ball erstellen
-        ball_mask = pygame.mask.from_surface(pygame.Surface((2*ball_radius, 2*ball_radius), pygame.SRCALPHA))
-
-    # Position der Masken setzen
-        ball_mask_rect = ball_mask.get_rect(center=(ball_x, ball_y))
-        rect_mask_rect = mask.get_rect(topleft=(rect_x, rect_y))
-
-    # Kollisionstest
-        return mask.overlap(ball_mask, (ball_mask_rect.x - rect_mask_rect.x, ball_mask_rect.y - rect_mask_rect.y)) is not None
-
-        
     # Initialize PyGame
     pygame.init()
 
@@ -247,11 +231,6 @@ def main():
             continue
         
         
-        for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
-            if check_collision(ball.position.x, ball.position.y, ball.radius, rotating_object.rect.x, rotating_object.rect.y, rotating_object.mask):
-                ball.velocity = ball.velocity * -0.8
-                print("Kollision!")
-                continue
         
         
         # Events
@@ -277,12 +256,18 @@ def main():
         #rotating_object.check_collision(ball1)
         
         for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
+            if check_collision(ball,rotating_object) or check_collision(ball,rotating_object2):
+                ball.velocity = ball.velocity * -0.8
+                print("Kollision!")
+        
+        for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
             if not (abs(ball.position.x - screen.get_width()/2) < (screen.get_width() - 2*hole_w)/2
                 and screen.get_height() - ball.position.y < hole_h + ball.radius):
                 ball.check_screen_collide(screen_borders)
                 continue
             # Hier ist der Ball im Korb drin
             GameOver()
+        
         # Settings
         pygame.display.flip() # Update the display of the full screen
         clock.tick(60) # 60 frames per second
