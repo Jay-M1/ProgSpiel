@@ -43,16 +43,40 @@ class Vector:
             return Vector(self.x - other.x, self.y - other.y)
         return Vector(self.x - other, self.y - other)
     
-    def __mul__(self, other):
-        if isinstance(other, self.__class__):
-            return Vector(self.x * other.x, self.y * other.y)
-        return Vector(self.x * other, self.y * other)
+    def __str__(self):
+        """
+        return a string for the class vector as "Vector(x,y,z)"
+        """
+        return f"Vector({self.x}, {self.y})"
+
+    def __mul__(self,other):
+        """ 
+        Overload the * Operator for the class Vector including
+        Type-based dispatch:
+            - multiplication of two instances of class Vector:
+              returns a float/int,  the scalar product
+            - multiplication of an instance of class Vector and a scalar (float or int):
+              returns a Vector, each component of the Vector is multiplied with the value
+        """
+        if isinstance(other, Vector):
+            return self.mul_vector(other)
+        if isinstance(other, float):
+            return self.mul_scalar(other)
+        if isinstance(other, int):
+            return self.mul_scalar(other)
+        
+    def mul_vector(self, other):
+        return float(self.x*other.x + self.y*other.y)
+
+    def mul_scalar(self, other):
+        return Vector(self.x*other, self.y*other)
 
     def abs(self):
         """
         Return the absolute value of the Vector instance.
         """
         return float(np.sqrt((self.x*self.x + self.y*self.y)))
+    
     def rotate(self, angle):
         """
         Returns:

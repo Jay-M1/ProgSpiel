@@ -17,8 +17,7 @@ colors = {'white': (255, 255, 255),
 def main():
 
     def start(position, radius):
-        if position.x == radius and position.y == 761:
-            ball1.velocity = Vector(12,-25)
+        ball1.velocity = Vector(12,-25)
         
     def reset():
         ball1.velocity = Vector(0, 0)
@@ -28,8 +27,50 @@ def main():
        
     def GameOver():
         reset()
-        
+    
+    def paint_line(start, end, tast=9, ballhere = True):
+            """
+            Zeichnet eine Linie zum Reflektieren
+            Input:  Anfangspunkt als Tuple
+                    Endpunkt als Tupel
+                    Tastabstand mit der die Linie zerlegt wird. Standartmäßig = 9
+                    ballhere = False: Es wird nur geprüft ob Ball1 mit der Linie stößt, falls True dann auch für Ball2
+            Output: Liste mit Punkten auf der Linie 
+            """
+            start_x = min(start[0],end[0])
+            start_y = min(start[1],end[1])
+            end_x = max(start[0],end[0])
+            end_y = max(start[1],end[1])
 
+            pygame.draw.line(screen, colors['white'], (start_x,start_y),(end_x,end_y))
+
+            richtung = Vector(end_x - start_x , end_y - start_y)
+            richtung = richtung * (1/(richtung.abs()))
+            normale = richtung.rotate(90)
+            l = Vector(start_x,start_y)
+            points = [l] # erster Punkt
+
+            while True:
+                l = l + richtung * tast
+                if l.x > end_x or l.y > end_y:
+                    break
+                points.append(l)
+            
+            for vec in points:
+                distance = ball1.position + vec * (-1)
+                if distance.abs() <= ball1.radius:
+                    ball1_v_davor = ball1.velocity
+                    ball1.position = ball1.position + normale * (ball1_v_davor * normale)*(-1)
+                    ball1.velocity = richtung * (ball1_v_davor * richtung)*(-1) + normale * (ball1_v_davor * normale)*(1)
+                    ball1.velocity = ball1.velocity * (-0.8)
+                if ballhere:
+                    distance = ball2.position + vec * (-0.8)
+                    if distance.abs() <= ball2.radius:
+                        ball2_v_davor = ball2.velocity
+                        ball2.position = ball2.position + normale * (ball2_v_davor * normale)*(-1)
+                        ball2.velocity = richtung * (ball2_v_davor * richtung)*(-1) + normale * (ball2_v_davor * normale)*(1)
+                        ball2.velocity = ball2.velocity * (-0.8)
+        
     # Initialize PyGame
     pygame.init()
 
@@ -106,7 +147,7 @@ def main():
 
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN and starts >= 0:
+            if event.type == pygame.MOUSEBUTTONDOWN:
                 start(ball1.position, ball1.radius)
                 starts -= 1
             if event.type == pygame.KEYDOWN:
@@ -136,6 +177,8 @@ def main():
         score_surface = test_font.render(f'Score: {score}', False, 'Black')
         score_rect = score_surface.get_rect(midbottom = (300,100))
         screen.blit(score_surface,score_rect)
+
+        paint_line((60,300), (150,700))
 
         scores[roundnr] = score
         #print(f"{scores} {score}")
@@ -182,7 +225,7 @@ def main():
         
         # Settings
         pygame.display.flip() # Update the display of the full screen
-        clock.tick(60) # 60 frames per second
+        clock.tick(60) # 60 frames per second        
 
 if __name__ == '__main__':
     main()
