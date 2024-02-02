@@ -47,12 +47,16 @@ class Vector:
         if isinstance(other, self.__class__):
             return Vector(self.x * other.x, self.y * other.y)
         return Vector(self.x * other, self.y * other)
+    
+    def __truediv__(self, scalar):
+        return Vector(self.x / scalar, self.y / scalar)
 
     def abs(self):
         """
         Return the absolute value of the Vector instance.
         """
         return float(np.sqrt((self.x*self.x + self.y*self.y)))
+    
     def rotate(self, angle):
         """
         Returns:
@@ -65,3 +69,20 @@ class Vector:
     
     def int_tuple(self):
         return int(self.x), int(self.y)
+    
+    def cross(self, other):
+        return self.x * other.y - self.y * other.x
+    
+    def dot(self, other):
+        return self.x * other.x + self.y * other.y
+    
+    def length(self):
+        return math.sqrt(self.x**2 + self.y**2)
+
+    def normalize(self):
+        length = self.abs()
+        if length != 0:
+            self.x /= length
+            self.y /= length
+        return Vector(self.x, self.y)
+    
