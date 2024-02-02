@@ -10,7 +10,7 @@ class RotatingObject(pygame.sprite.Sprite):
     def __init__(self, position, pivot, rotation, direction):
         super().__init__()
         self.image = pygame.Surface((100, 100), pygame.SRCALPHA)
-        pygame.draw.rect(self.image, (0, 255, 0), (0, 0, 50, 200)) #pygame.image.load("basebat_blue.png").convert_alpha()
+        pygame.draw.rect(self.image, (0, 255, 0), (0, 0, 50, 100)) #pygame.image.load("basebat_blue.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (50, 135))
         self.rotation = rotation
         self.image = pygame.transform.rotate(self.image, self.rotation)

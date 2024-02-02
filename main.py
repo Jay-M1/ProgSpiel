@@ -7,6 +7,7 @@ from vector import Vector
 from ball import Ball
 from rect import Rect
 from bat import RotatingObject
+from rotatingrect import Rotating_rect
 
 colors = {'white': (255, 255, 255),
           'black': (0, 0, 0),
@@ -17,7 +18,8 @@ colors = {'white': (255, 255, 255),
 def main():
 
     def start(position, radius):
-        ball1.velocity = Vector(12,-25)
+        if position.x == radius and position.y == 761:
+            ball1.velocity = Vector(12,-25)
         
     def reset():
         ball1.velocity = Vector(0, 0)
@@ -120,14 +122,16 @@ def main():
     all_sprites = pygame.sprite.Group(left_bat, right_bat)
     
     #Rects
-    rect1 = Rect(Vector(300,300), status="static")
-    rect2 = Rect(Vector(100,200), status= None)
+    rect1 = Rect(Vector(300,400),100,20)
+    rotating_center_rect = Rotating_rect((200, 200), (25, 25), 0, 20, 100)
     circle = 0
     
     starts = 5
     
     key_left = False
     key_right = False
+    
+    rect_speed = 2
     
     # Main event loop
     while running:
@@ -140,8 +144,6 @@ def main():
         screen.blit(bg, (0, 0))
         ground_level = screen.get_height()-hole_h
         screen_borders = Vector(screen.get_width(),ground_level)
-        
-        acceleration = 1
         
         for event in pygame.event.get():
 
@@ -186,10 +188,19 @@ def main():
         highscore_surface = test_font.render(f'Highscore: {highscore}', False, 'Black')
         highscore_rect = highscore_surface.get_rect(midbottom = (300,120))
         screen.blit(highscore_surface,highscore_rect)
+        
+        rotating_center_rect.rotate(1, True)
 
+        if rect1.position.x < 0 or (rect1.position.x + rect1.width) > screen.get_width():
+            rect_speed *= -1
+        rect1.position.x += rect_speed
+        
+        
         pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
         pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
         pygame.draw.circle(screen, 'green', [big_ball.position.x,big_ball.position.y] , big_ball.radius)
+        pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height))
+        rotating_center_rect.draw(screen)
 
         hole1_rect = hole1_surface.get_rect(bottomleft = (0,screen.get_height()))
         hole2_rect = hole2_surface.get_rect(bottomright = (screen.get_width(),screen.get_height()))
@@ -197,10 +208,7 @@ def main():
         screen.blit(hole2_surface,hole2_rect)
         
         
-        screen.blit(rect1.surface,(rect1.position.x,rect1.position.y))
-        rect2.rotate(1)
-        screen.blit(rect2.surface,(rect2.position.x,rect2.position.y))
-        
+    
         
         # Motion
         ball1.check_collision(ball2)
@@ -211,6 +219,14 @@ def main():
         ball2.gravitate()
         key_left = left_bat.update_left(key_left)
         key_right = right_bat.update_right(key_right)
+        
+        if ball1.is_rect_collision(rect1):
+            ball1.velocity *= -1
+            score += 1
+        if ball2.is_rect_collision(rect1):
+            ball2.velocity *= -1
+            score += 1
+        
         
         for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
             if not (abs(ball.position.x - screen.get_width()/2) < (screen.get_width() - 2*hole_w)/2
