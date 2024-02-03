@@ -18,8 +18,7 @@ colors = {'white': (255, 255, 255),
 def main():
 
     def start(position, radius):
-        if position.x == radius and position.y == 761:
-            ball1.velocity = Vector(12,-25)
+        ball1.velocity = Vector(12,-25)
         
     def reset():
         ball1.velocity = Vector(0, 0)

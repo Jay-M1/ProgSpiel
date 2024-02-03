@@ -43,7 +43,6 @@ class Vector:
             return Vector(self.x - other.x, self.y - other.y)
         return Vector(self.x - other, self.y - other)
     
-<<<<<<< HEAD
     def __str__(self):
         """
         return a string for the class vector as "Vector(x,y,z)"
@@ -71,7 +70,7 @@ class Vector:
 
     def mul_scalar(self, other):
         return Vector(self.x*other, self.y*other)
-=======
+    
     def __mul__(self, other):
         if isinstance(other, self.__class__):
             return Vector(self.x * other.x, self.y * other.y)
@@ -79,7 +78,6 @@ class Vector:
     
     def __truediv__(self, scalar):
         return Vector(self.x / scalar, self.y / scalar)
->>>>>>> 5a8a116ac8bee81f6a34e9d4ae43700803457b94
 
     def abs(self):
         """
