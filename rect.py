@@ -49,6 +49,6 @@ class Rect:
             max_rect = max(rect_projections)
 
             if circle_projection + ball.radius < min_rect or circle_projection - ball.radius > max_rect:
-                return False
+                return False,normal
 
-        return True
+        return True,normal

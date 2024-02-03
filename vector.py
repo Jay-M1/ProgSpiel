@@ -98,6 +98,13 @@ class Vector:
     def int_tuple(self):
         return int(self.x), int(self.y)
     
+    def angle(self):
+        if self.x == 0 or self.y == 0:
+            return 0
+        else:
+            no = -360/2/math.pi * math.atan2(self.y,self.x)
+            return no
+    
     def cross(self, other):
         return self.x * other.y - self.y * other.x
     

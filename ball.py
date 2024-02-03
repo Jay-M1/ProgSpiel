@@ -32,6 +32,7 @@ class Ball:
 
         connecting_vec = other.position - self.position
         distance = connecting_vec.abs()
+        if distance == 0: distance = 1
         isbigball = False
 
         if distance <= max(self.radius, other.radius):
@@ -51,10 +52,8 @@ class Ball:
 
             if isbigball:
                 self.velocity = self.velocity * (-1.5)
-                if self.velocity.abs() >= 2: spawn = True
-
-                return spawn
-            
+                if self.velocity.abs() >= 2:
+                    return True            
 
     def gravitate(self,DT=1):
 
@@ -78,4 +77,4 @@ class Ball:
     
     
     def is_rect_collision(self, rect):
-        return rect.is_collision(self)
+        return rect.is_collision(self)[0]

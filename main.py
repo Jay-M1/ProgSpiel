@@ -179,7 +179,7 @@ def main():
         score_rect = score_surface.get_rect(midbottom = (300,100))
         screen.blit(score_surface,score_rect)
 
-        paint_line((60,300), (150,700))
+        #paint_line((60,300), (150,700))
 
         scores[roundnr] = score
         #print(f"{scores} {score}")
@@ -219,13 +219,17 @@ def main():
         key_left = left_bat.update_left(key_left)
         key_right = right_bat.update_right(key_right)
         
-        if ball1.is_rect_collision(rect1):
-            ball1.velocity *= -1
-            score += 1
-        if ball2.is_rect_collision(rect1):
-            ball2.velocity *= -1
-            score += 1
-        
+        for ball in [ball1,ball2]:
+            if ball.is_rect_collision(rect1):
+                _,normal = rect1.is_collision(ball)
+                tangent = normal.rotate(90)
+                normal = tangent.rotate(90)
+                absvelo = ball.velocity.abs()
+                velo = tangent * ball.velocity.dot(tangent) * (-1) + normal * ball.velocity.dot(normal)
+                ball.position += velo.normalize()
+                ball.velocity =  velo*absvelo
+                print(velo)
+                score += 1
         
         for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
             if not (abs(ball.position.x - screen.get_width()/2) < (screen.get_width() - 2*hole_w)/2
@@ -236,7 +240,7 @@ def main():
             roundnr += 1
             score = 0
             scores.append(score)
-            GameOver()
+            #GameOver()
         
         # Settings
         pygame.display.flip() # Update the display of the full screen
