@@ -198,7 +198,7 @@ def main():
         pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
         pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
         pygame.draw.circle(screen, 'green', [big_ball.position.x,big_ball.position.y] , big_ball.radius)
-        pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height))
+        print(pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height)))
         rotrect = rotating_center_rect.draw(screen)
 
         hole1_rect = hole1_surface.get_rect(bottomleft = (0,screen.get_height()))
@@ -219,7 +219,7 @@ def main():
         key_left, bat1_rect = left_bat.update_left(key_left)
         key_right, bat2_rect = right_bat.update_right(key_right)
 
-        pygame.draw.rect(screen, colors['black'], rotrect)
+        #print(pygame.draw.rect(screen, colors['black'], rotrect))
         
         for ball in [ball1,ball2]:
             if ball.is_rect_collision(rect1):
