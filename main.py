@@ -199,7 +199,7 @@ def main():
         pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
         pygame.draw.circle(screen, 'green', [big_ball.position.x,big_ball.position.y] , big_ball.radius)
         pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height))
-        rotating_center_rect.draw(screen)
+        rotrect = rotating_center_rect.draw(screen)
 
         hole1_rect = hole1_surface.get_rect(bottomleft = (0,screen.get_height()))
         hole2_rect = hole2_surface.get_rect(bottomright = (screen.get_width(),screen.get_height()))
@@ -220,17 +220,27 @@ def main():
         key_right = right_bat.update_right(key_right)
         
         for ball in [ball1,ball2]:
-            for rect in [rect1,rotating_center_rect]:
-                if ball.is_rect_collision(rect):
-                    _,normal = rect.is_collision(ball)
-                    tangent = normal.rotate(90)
-                    normal = tangent.rotate(90)
-                    absvelo = ball.velocity.abs()
-                    velo = tangent * ball.velocity.dot(tangent) * (-1) + normal * ball.velocity.dot(normal)
-                    ball.position += velo.normalize()
-                    ball.velocity =  velo*absvelo
-                    print(velo)
-                    score += 1
+            if ball.is_rect_collision(rect1):
+                _,normal = rect1.is_collision(ball)
+                tangent = normal.rotate(90)
+                normal = tangent.rotate(90)
+                absvelo = ball.velocity.abs()
+                velo = tangent * ball.velocity.dot(tangent) * (-1) + normal * ball.velocity.dot(normal)
+                ball.position += velo.normalize()
+                ball.velocity =  velo*absvelo
+                #print(velo)
+                score += 1
+
+            condition,normal2 = rotating_center_rect.is_collision(ball1,rotrect)
+            if condition:
+                tangent2 = normal2.rotate(90)
+                normal2 = tangent2.rotate(90)
+                absvelo = ball.velocity.abs()
+                velo = tangent * ball.velocity.dot(tangent) * (-1) + normal * ball.velocity.dot(normal)
+                ball.position += velo.normalize()
+                ball.velocity =  velo*absvelo
+                print(velo)
+                score += 1
         
         for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
             

@@ -40,8 +40,8 @@ class Rotating_rect:
                    ]
         return corners
         
-    def is_collision(self, ball):
-        rect_vertices = self.calculate_vertices()
+    def is_collision(self, ball, rect):
+        rect_vertices = self.calculate_vertices(rect)
         
         for i in range(len(rect_vertices)):
             edge = rect_vertices[(i + 1) % len(rect_vertices)] - rect_vertices[i]
