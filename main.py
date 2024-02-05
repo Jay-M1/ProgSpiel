@@ -68,6 +68,7 @@ def main():
             points.append((x + x_offset, y + y_offset))
 
         pygame.draw.polygon(screen, color, points)
+        return points
     
     def paint_line(start, end, tast=9, ballhere = True):
             """
@@ -240,17 +241,13 @@ def main():
         pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
         pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
         pygame.draw.circle(screen, 'green', [big_ball.position.x,big_ball.position.y] , big_ball.radius)
-        print(pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height)))
+        pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height))
         rotrect = rotating_center_rect.draw(screen)
 
         hole1_rect = hole1_surface.get_rect(bottomleft = (0,screen.get_height()))
         hole2_rect = hole2_surface.get_rect(bottomright = (screen.get_width(),screen.get_height()))
         screen.blit(hole1_surface,hole1_rect)
-        screen.blit(hole2_surface,hole2_rect)
-
-        i += 2
-        draw_rectangle(200,200,50,50,colors['black'],i)
-    
+        screen.blit(hole2_surface,hole2_rect)   
         
         # Motion
         ball1.check_collision(ball2)
@@ -262,10 +259,39 @@ def main():
         key_left, bat1_rect = left_bat.update_left(key_left)
         key_right, bat2_rect = right_bat.update_right(key_right)
 
-        #print(pygame.draw.rect(screen, colors['black'], rotrect))
+        i += 1
+        rotrect_points = draw_rectangle(200,200,50,100,colors['black'],i/4)
+        corners = []
+        for point in rotrect_points:
+            vec = Vector(point[0],point[1])
+            corners.append(vec)
         
+        for bla in range(len(corners)):
+            edge = corners[(bla + 1) % len(corners)] - corners[bla]
+            normal = Vector(-edge.y, edge.x).normalize()
+
+            rect_projections = [p.dot(normal) for p in corners]
+            circle_projection = ball1.position.dot(normal)
+
+            min_rect = min(rect_projections)
+            max_rect = max(rect_projections)
+
+            if (circle_projection + ball1.radius < min_rect or circle_projection - ball1.radius > max_rect):
+                # es gibt eine separierende Axe!
+                print('abstand')
+            else:
+                print('colli')
+                #ball1.velocity = ball1.velocity * (-1)
+                
+
+
+
+
+        
+        #RECT COLLISIONS:
         for ball in [ball1,ball2]:
             if ball.is_rect_collision(rect1):
+                print('truu')
                 _,normal = rect1.is_collision(ball)
                 tangent = normal.rotate(90)
                 normal = tangent.rotate(90)
@@ -276,30 +302,30 @@ def main():
                 #print(velo)
                 score += 1
 
-            condition,normal2 = rotating_center_rect.is_collision(ball,rotrect)
-            if condition:
-                tangent2 = normal2.rotate(90)
-                normal2 = tangent2.rotate(90)
-                absvelo = ball.velocity.abs()
-                velo = tangent2 * ball.velocity.dot(tangent2) * (-1) + normal2 * ball.velocity.dot(normal2)
-                ball.position += velo.normalize()
-                ball.velocity =  velo*absvelo
-                print(velo)
-                score += 1
+        #     condition,normal2 = rotating_center_rect.is_collision(ball,rotrect)
+        #     if condition:
+        #         tangent2 = normal2.rotate(90)
+        #         normal2 = tangent2.rotate(90)
+        #         absvelo = ball.velocity.abs()
+        #         velo = tangent2 * ball.velocity.dot(tangent2) * (-1) + normal2 * ball.velocity.dot(normal2)
+        #         ball.position += velo.normalize()
+        #         ball.velocity =  velo*absvelo
+        #         print(velo)
+        #         score += 1
 
-            for bat in [left_bat, right_bat]:
-                if bat == left_bat: batrect = bat1_rect
-                elif bat == right_bat: batrect = bat2_rect
-                condition_bat, normal_bat = bat.is_collision(ball, batrect)
-                if condition_bat:
-                    tangent_bat = normal_bat.rotate(90)
-                    normal_bat = tangent_bat.rotate(90)
-                    absvelo = ball.velocity.abs()
-                    velo = tangent_bat * ball.velocity.dot(tangent_bat) * (-1) + normal_bat * ball.velocity.dot(normal_bat)
-                    ball.position += velo.normalize()
-                    ball.velocity =  velo*absvelo
-                    print(velo)
-                    score += 1
+        #     for bat in [left_bat, right_bat]:
+        #         if bat == left_bat: batrect = bat1_rect
+        #         elif bat == right_bat: batrect = bat2_rect
+        #         condition_bat, normal_bat = bat.is_collision(ball, batrect)
+        #         if condition_bat:
+        #             tangent_bat = normal_bat.rotate(90)
+        #             normal_bat = tangent_bat.rotate(90)
+        #             absvelo = ball.velocity.abs()
+        #             velo = tangent_bat * ball.velocity.dot(tangent_bat) * (-1) + normal_bat * ball.velocity.dot(normal_bat)
+        #             ball.position += velo.normalize()
+        #             ball.velocity =  velo*absvelo
+        #             print(velo)
+        #             score += 1
                     
         
         for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
