@@ -26,7 +26,7 @@ class RotatingObject(pygame.sprite.Sprite):
     def update_right(self, is_aktiv):
         if is_aktiv:
             if self.angle < -35:
-                return False
+                return False, self.rect
             
             self.angle -= 4
             image_rect = self.original_image.get_rect(midright = (self.position.x - self.pivot.x, self.position.y - self.pivot.y))
@@ -35,7 +35,7 @@ class RotatingObject(pygame.sprite.Sprite):
             rotated_image_center = (self.position.x - rotated_offset.x, self.position.y - rotated_offset.y)
             self.image = pygame.transform.rotate(self.original_image, self.angle)
             self.rect = self.image.get_rect(center = rotated_image_center)
-            return True
+            return True, self.rect
         else:
             if self.angle <= 20:
                 
@@ -46,12 +46,12 @@ class RotatingObject(pygame.sprite.Sprite):
                 rotated_image_center = (self.position.x - rotated_offset.x, self.position.y - rotated_offset.y)
                 self.image = pygame.transform.rotate(self.original_image, self.angle)
                 self.rect = self.image.get_rect(center = rotated_image_center)
-            return False
+            return False, self.rect
         
     def update_left(self, is_aktiv):
         if is_aktiv:
             if self.angle > 35:
-                return False
+                return False, self.rect
             
             self.angle += 4
             image_rect = self.original_image.get_rect(midleft = (self.position.x - self.pivot.x, self.position.y - self.pivot.y))
@@ -61,7 +61,7 @@ class RotatingObject(pygame.sprite.Sprite):
             self.image = pygame.transform.rotate(self.original_image, self.angle)
             self.rect = self.image.get_rect(center = rotated_image_center)
             self.mask = pygame.mask.from_surface(self.image)
-            return True
+            return True, self.rect
         else:
             if self.angle >= -20:
                 
@@ -73,4 +73,30 @@ class RotatingObject(pygame.sprite.Sprite):
                 self.image = pygame.transform.rotate(self.original_image, self.angle)
                 self.rect = self.image.get_rect(center = rotated_image_center)
                 self.mask = pygame.mask.from_surface(self.image)
-            return False
+            return False, self.rect
+        
+    def is_collision(self, ball, bat):
+        rect_rotated_surface = bat
+        corners = [
+                   Vector(rect_rotated_surface.topleft[0], rect_rotated_surface.topleft[1],),
+                   Vector(rect_rotated_surface.topright[0], rect_rotated_surface.topright[1]),
+                   Vector(rect_rotated_surface.bottomright[0], rect_rotated_surface.bottomright[1]),
+                   Vector(rect_rotated_surface.bottomleft[0], rect_rotated_surface.bottomleft[1]),
+                   ]
+        rect_vertices = corners
+        
+        for i in range(len(rect_vertices)):
+            edge = rect_vertices[(i + 1) % len(rect_vertices)] - rect_vertices[i]
+            normal = Vector(-edge.y, edge.x).normalize()
+
+            rect_projections = [p.dot(normal) for p in rect_vertices]
+            circle_projection = ball.position.dot(normal)
+
+            min_rect = min(rect_projections)
+            max_rect = max(rect_projections)
+
+            if circle_projection + ball.radius < min_rect or circle_projection - ball.radius > max_rect:
+                # es gibt eine separierende Axe!
+                return False,normal
+
+        return True,normal

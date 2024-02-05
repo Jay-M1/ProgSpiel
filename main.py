@@ -216,8 +216,10 @@ def main():
         ball2.check_collision(big_ball)
         ball1.gravitate()
         ball2.gravitate()
-        key_left = left_bat.update_left(key_left)
-        key_right = right_bat.update_right(key_right)
+        key_left, bat1_rect = left_bat.update_left(key_left)
+        key_right, bat2_rect = right_bat.update_right(key_right)
+
+        pygame.draw.rect(screen, colors['black'], rotrect)
         
         for ball in [ball1,ball2]:
             if ball.is_rect_collision(rect1):
@@ -231,16 +233,31 @@ def main():
                 #print(velo)
                 score += 1
 
-            condition,normal2 = rotating_center_rect.is_collision(ball1,rotrect)
+            condition,normal2 = rotating_center_rect.is_collision(ball,rotrect)
             if condition:
                 tangent2 = normal2.rotate(90)
                 normal2 = tangent2.rotate(90)
                 absvelo = ball.velocity.abs()
-                velo = tangent * ball.velocity.dot(tangent) * (-1) + normal * ball.velocity.dot(normal)
+                velo = tangent2 * ball.velocity.dot(tangent2) * (-1) + normal2 * ball.velocity.dot(normal2)
                 ball.position += velo.normalize()
                 ball.velocity =  velo*absvelo
                 print(velo)
                 score += 1
+
+            for bat in [left_bat, right_bat]:
+                if bat == left_bat: batrect = bat1_rect
+                elif bat == right_bat: batrect = bat2_rect
+                condition_bat, normal_bat = bat.is_collision(ball, batrect)
+                if condition_bat:
+                    tangent_bat = normal_bat.rotate(90)
+                    normal_bat = tangent_bat.rotate(90)
+                    absvelo = ball.velocity.abs()
+                    velo = tangent_bat * ball.velocity.dot(tangent_bat) * (-1) + normal_bat * ball.velocity.dot(normal_bat)
+                    ball.position += velo.normalize()
+                    ball.velocity =  velo*absvelo
+                    print(velo)
+                    score += 1
+                    
         
         for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
             
