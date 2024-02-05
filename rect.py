@@ -49,6 +49,7 @@ class Rect:
             max_rect = max(rect_projections)
 
             if circle_projection + ball.radius < min_rect or circle_projection - ball.radius > max_rect:
+                # es gibt eine separierende Axe!
                 return False,normal
 
         return True,normal

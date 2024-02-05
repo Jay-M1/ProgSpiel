@@ -179,7 +179,7 @@ def main():
         score_rect = score_surface.get_rect(midbottom = (300,100))
         screen.blit(score_surface,score_rect)
 
-        paint_line((0,300), (150,700))
+        #paint_line((0,300), (150,700))
 
         scores[roundnr] = score
         #print(f"{scores} {score}")
@@ -220,27 +220,31 @@ def main():
         key_right = right_bat.update_right(key_right)
         
         for ball in [ball1,ball2]:
-            if ball.is_rect_collision(rect1):
-                _,normal = rect1.is_collision(ball)
-                tangent = normal.rotate(90)
-                normal = tangent.rotate(90)
-                absvelo = ball.velocity.abs()
-                velo = tangent * ball.velocity.dot(tangent) * (-1) + normal * ball.velocity.dot(normal)
-                ball.position += velo.normalize()
-                ball.velocity =  velo*absvelo
-                print(velo)
-                score += 1
+            for rect in [rect1,rotating_center_rect]:
+                if ball.is_rect_collision(rect):
+                    _,normal = rect.is_collision(ball)
+                    tangent = normal.rotate(90)
+                    normal = tangent.rotate(90)
+                    absvelo = ball.velocity.abs()
+                    velo = tangent * ball.velocity.dot(tangent) * (-1) + normal * ball.velocity.dot(normal)
+                    ball.position += velo.normalize()
+                    ball.velocity =  velo*absvelo
+                    print(velo)
+                    score += 1
         
         for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
-            if not (abs(ball.position.x - screen.get_width()/2) < (screen.get_width() - 2*hole_w)/2
-                and screen.get_height() - ball.position.y < hole_h + ball.radius):
+            
+            if (abs(ball.position.x - screen.get_width()/2) < (screen.get_width() - 2*hole_w)/2
+                and screen.get_height() - ball.position.y < 200):
+                if screen.get_height() - ball.position.y < 1:
+                    roundnr += 1
+                    score = 0
+                    scores.append(score)
+                    ball.check_screen_collide(screen_borders)
+                    GameOver()
+            else:
                 ball.check_screen_collide(screen_borders)
-                continue
-            # Hier ist der Ball im Korb drin
-            roundnr += 1
-            score = 0
-            scores.append(score)
-            #GameOver()
+                
         
         # Settings
         pygame.display.flip() # Update the display of the full screen
