@@ -179,7 +179,7 @@ def main():
         score_rect = score_surface.get_rect(midbottom = (300,100))
         screen.blit(score_surface,score_rect)
 
-        #paint_line((60,300), (150,700))
+        paint_line((0,300), (150,700))
 
         scores[roundnr] = score
         #print(f"{scores} {score}")

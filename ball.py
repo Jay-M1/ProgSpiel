@@ -60,19 +60,19 @@ class Ball:
         self.velocity = self.velocity + self.grav*DT
         self.position = self.position + self.velocity*DT + self.grav*DT**2*0.5
         
-    def is_collision(self, rect_pos, rect_width, rect_height):
-        rect_left = rect_pos[0]
-        rect_right = rect_pos[0] + rect_width
-        rect_top = rect_pos[1]
-        rect_bottom = rect_pos[1] + rect_height
+    # def is_collision(self, rect_pos, rect_width, rect_height):
+    #     rect_left = rect_pos[0]
+    #     rect_right = rect_pos[0] + rect_width
+    #     rect_top = rect_pos[1]
+    #     rect_bottom = rect_pos[1] + rect_height
 
-        closest_x = max(rect_left, min(self.position.x, rect_right))
-        closest_y = max(rect_top, min(self.position.y, rect_bottom))
+    #     closest_x = max(rect_left, min(self.position.x, rect_right))
+    #     closest_y = max(rect_top, min(self.position.y, rect_bottom))
 
-        distance = math.sqrt((self.position.x - closest_x)**2 + (self.position.y - closest_y)**2)
+    #     distance = math.sqrt((self.position.x - closest_x)**2 + (self.position.y - closest_y)**2)
         
-        if distance < self.radius:
-            self.velocity = self.velocity * (-1)
+    #     if distance < self.radius:
+    #         self.velocity = self.velocity * (-1)
             
     
     
