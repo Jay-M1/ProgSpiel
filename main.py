@@ -29,89 +29,7 @@ def main():
        
     def GameOver():
         reset()
-
-    # def draw_rectangle(x, y, width, height, color, rotation=0):
-    #     """Draw a rectangle, centered at x, y.
-
-    #     Arguments:
-    #     x (int/float):
-    #         The x coordinate of the center of the shape.
-    #     y (int/float):
-    #         The y coordinate of the center of the shape.
-    #     width (int/float):
-    #         The width of the rectangle.
-    #     height (int/float):
-    #         The height of the rectangle.
-    #     color (str):
-    #         Name of the fill color, in HTML format.
-    #     """
-    #     points = []
-
-    #     # The distance from the center of the rectangle to
-    #     # one of the corners is the same for each corner.
-    #     radius = math.sqrt((height / 2)**2 + (width / 2)**2)
-
-    #     # Get the angle to one of the corners with respect
-    #     # to the x-axis.
-    #     angle = math.atan2(height / 2, width / 2)
-
-    #     # Transform that angle to reach each corner of the rectangle.
-    #     angles = [angle, -angle + math.pi, angle + math.pi, -angle]
-
-    #     # Convert rotation from degrees to radians.
-    #     rot_radians = (math.pi / 180) * rotation
-
-    #     # Calculate the coordinates of each point.
-    #     for angle in angles:
-    #         y_offset = -1 * radius * math.sin(angle + rot_radians)
-    #         x_offset = radius * math.cos(angle + rot_radians)
-    #         points.append((x + x_offset, y + y_offset))
-
-    #     pygame.draw.polygon(screen, color, points)
-    #     return points
-    
-    # def paint_line(start, end, tast=9, ballhere = True):
-    #         """
-    #         Zeichnet eine Linie zum Reflektieren
-    #         Input:  Anfangspunkt als Tuple
-    #                 Endpunkt als Tupel
-    #                 Tastabstand mit der die Linie zerlegt wird. Standartmäßig = 9
-    #                 ballhere = False: Es wird nur geprüft ob Ball1 mit der Linie stößt, falls True dann auch für Ball2
-    #         Output: Liste mit Punkten auf der Linie 
-    #         """
-    #         start_x = min(start[0],end[0])
-    #         start_y = min(start[1],end[1])
-    #         end_x = max(start[0],end[0])
-    #         end_y = max(start[1],end[1])
-
-    #         pygame.draw.line(screen, colors['white'], (start_x,start_y),(end_x,end_y))
-
-    #         richtung = Vector(end_x - start_x , end_y - start_y)
-    #         richtung = richtung * (1/(richtung.abs()))
-    #         normale = richtung.rotate(90)
-    #         l = Vector(start_x,start_y)
-    #         points = [l] # erster Punkt
-
-    #         while True:
-    #             l = l + richtung * tast
-    #             if l.x > end_x or l.y > end_y:
-    #                 break
-    #             points.append(l)
-            
-    #         for vec in points:
-    #             distance = ball1.position + vec * (-1)
-    #             if distance.abs() <= ball1.radius:
-    #                 ball1_v_davor = ball1.velocity
-    #                 ball1.position = ball1.position + normale * (ball1_v_davor * normale)*(-1)
-    #                 ball1.velocity = richtung * (ball1_v_davor * richtung)*(-1) + normale * (ball1_v_davor * normale)*(1)
-    #                 ball1.velocity = ball1.velocity * (-0.8)
-    #             if ballhere:
-    #                 distance = ball2.position + vec * (-0.8)
-    #                 if distance.abs() <= ball2.radius:
-    #                     ball2_v_davor = ball2.velocity
-    #                     ball2.position = ball2.position + normale * (ball2_v_davor * normale)*(-1)
-    #                     ball2.velocity = richtung * (ball2_v_davor * richtung)*(-1) + normale * (ball2_v_davor * normale)*(1)
-    #                     ball2.velocity = ball2.velocity * (-0.8)
+        
         
     # Initialize PyGame
     pygame.init()
@@ -136,7 +54,8 @@ def main():
     ball1 = Ball(Vector(10, screen.get_height()),Vector(0,0),10)
     ball2 = Ball(Vector(500, screen.get_height()),Vector(0,0),10)
     big_ball = Ball(Vector(300,300), Vector(0,0), 30, grav=Vector(0,0))
-    small_ball = Ball(Vector(300,480), Vector(0,0), 11, grav=Vector(0,0))
+    big_ball2 = Ball(Vector(400,200), Vector(0,0), 20, grav=Vector(0,0))
+    #small_ball = Ball(Vector(300,480), Vector(0,0), 11, grav=Vector(0,0))
     #rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75)
     
     # Colors, Background
@@ -146,7 +65,7 @@ def main():
     # Music
     
     music = pygame.mixer.music.load(Path(__file__).parents[0] / Path("audio/Clown.mp3")) # Quelle https://www.chosic.com/download-audio/53609/
-    #pygame.mixer.music.play(-1)
+    pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(.6)
 
     # Surfaces
@@ -178,6 +97,7 @@ def main():
     key_right = False
     
     rect_speed = 2
+    big_ball_speed = 2
 
     i = 1
     
@@ -243,11 +163,20 @@ def main():
         #     rect_speed *= -1
         # rect1.position.x += rect_speed
         
+        if big_ball.position.x - big_ball.radius < 0:
+            big_ball_speed *= -1
+            big_ball.position.x = big_ball.radius
+        elif big_ball.position.x + big_ball.radius > screen.get_width():
+            big_ball_speed *= -1
+            big_ball.position.x = screen.get_width() - big_ball.radius
+        big_ball.position.x += big_ball_speed
+        big_ball.move_horizontally()
+        
         
         pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
         pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
         pygame.draw.circle(screen, 'green', [big_ball.position.x,big_ball.position.y] , big_ball.radius)
-        #pygame.draw.circle(screen, 'green', [small_ball.position.x,small_ball.position.y] , small_ball.radius)
+        pygame.draw.circle(screen, 'green', [big_ball2.position.x, big_ball2.position.y] , big_ball2.radius)
         pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height))
         # rotrect = rotating_center_rect.draw(screen)
 
@@ -259,8 +188,8 @@ def main():
         # Motion
         ball1.check_collision(ball2)
         spawn = ball1.check_collision(big_ball)
-        ball1.check_collision(small_ball)
-        if spawn: score += 1
+        spawn2 = ball1.check_collision(big_ball2)
+        if spawn or spawn2: score += 1
         ball2.check_collision(big_ball)
         ball1.gravitate()
         ball2.gravitate()
@@ -305,14 +234,14 @@ def main():
         #         print('colli')
         #         #ball1.velocity = ball1.velocity * (-1)
 ##############################################################################################################################
-        points = [(100,120),(150,100), (200,300)]
-        pygame.draw.polygon(screen, colors['red'], points)
+        # points = [(100,120),(150,100), (200,300)]
+        # pygame.draw.polygon(screen, colors['red'], points)
 
-        #for i in ball1.collides_with(points): print(i)
+        # #for i in ball1.collides_with(points): print(i)
 
-        if ball1.collides_with(points):
-            pass
-            #print('it collides')
+        # if ball1.collides_with(points):
+        #     pass
+        #     #print('it collides')
 ################################################################################################################################################
         
         # rotating_rect.draw_rectangle(150,300,30,100,colors['green'],i)

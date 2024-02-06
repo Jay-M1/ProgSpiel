@@ -66,6 +66,11 @@ class Ball:
         self.velocity = self.velocity + self.grav*DT
         self.position = self.position + self.velocity*DT + self.grav*DT**2*0.5
         
+    def move_horizontally(self):
+        self.position.x += self.velocity.x
+        self.velocity.y = 0
+        
+        
     # def is_collision(self, rect_pos, rect_width, rect_height):
     #     rect_left = rect_pos[0]
     #     rect_right = rect_pos[0] + rect_width
