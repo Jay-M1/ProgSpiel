@@ -8,7 +8,7 @@ from vector import Vector
 from ball import Ball
 from rect import Rect
 from bat import RotatingObject
-from rotatingrect import Rotating_rect
+from rotatingrect import RectangleDrawer
 
 colors = {'white': (255, 255, 255),
           'black': (0, 0, 0),
@@ -30,88 +30,88 @@ def main():
     def GameOver():
         reset()
 
-    def draw_rectangle(x, y, width, height, color, rotation=0):
-        """Draw a rectangle, centered at x, y.
+    # def draw_rectangle(x, y, width, height, color, rotation=0):
+    #     """Draw a rectangle, centered at x, y.
 
-        Arguments:
-        x (int/float):
-            The x coordinate of the center of the shape.
-        y (int/float):
-            The y coordinate of the center of the shape.
-        width (int/float):
-            The width of the rectangle.
-        height (int/float):
-            The height of the rectangle.
-        color (str):
-            Name of the fill color, in HTML format.
-        """
-        points = []
+    #     Arguments:
+    #     x (int/float):
+    #         The x coordinate of the center of the shape.
+    #     y (int/float):
+    #         The y coordinate of the center of the shape.
+    #     width (int/float):
+    #         The width of the rectangle.
+    #     height (int/float):
+    #         The height of the rectangle.
+    #     color (str):
+    #         Name of the fill color, in HTML format.
+    #     """
+    #     points = []
 
-        # The distance from the center of the rectangle to
-        # one of the corners is the same for each corner.
-        radius = math.sqrt((height / 2)**2 + (width / 2)**2)
+    #     # The distance from the center of the rectangle to
+    #     # one of the corners is the same for each corner.
+    #     radius = math.sqrt((height / 2)**2 + (width / 2)**2)
 
-        # Get the angle to one of the corners with respect
-        # to the x-axis.
-        angle = math.atan2(height / 2, width / 2)
+    #     # Get the angle to one of the corners with respect
+    #     # to the x-axis.
+    #     angle = math.atan2(height / 2, width / 2)
 
-        # Transform that angle to reach each corner of the rectangle.
-        angles = [angle, -angle + math.pi, angle + math.pi, -angle]
+    #     # Transform that angle to reach each corner of the rectangle.
+    #     angles = [angle, -angle + math.pi, angle + math.pi, -angle]
 
-        # Convert rotation from degrees to radians.
-        rot_radians = (math.pi / 180) * rotation
+    #     # Convert rotation from degrees to radians.
+    #     rot_radians = (math.pi / 180) * rotation
 
-        # Calculate the coordinates of each point.
-        for angle in angles:
-            y_offset = -1 * radius * math.sin(angle + rot_radians)
-            x_offset = radius * math.cos(angle + rot_radians)
-            points.append((x + x_offset, y + y_offset))
+    #     # Calculate the coordinates of each point.
+    #     for angle in angles:
+    #         y_offset = -1 * radius * math.sin(angle + rot_radians)
+    #         x_offset = radius * math.cos(angle + rot_radians)
+    #         points.append((x + x_offset, y + y_offset))
 
-        pygame.draw.polygon(screen, color, points)
-        return points
+    #     pygame.draw.polygon(screen, color, points)
+    #     return points
     
-    def paint_line(start, end, tast=9, ballhere = True):
-            """
-            Zeichnet eine Linie zum Reflektieren
-            Input:  Anfangspunkt als Tuple
-                    Endpunkt als Tupel
-                    Tastabstand mit der die Linie zerlegt wird. Standartmäßig = 9
-                    ballhere = False: Es wird nur geprüft ob Ball1 mit der Linie stößt, falls True dann auch für Ball2
-            Output: Liste mit Punkten auf der Linie 
-            """
-            start_x = min(start[0],end[0])
-            start_y = min(start[1],end[1])
-            end_x = max(start[0],end[0])
-            end_y = max(start[1],end[1])
+    # def paint_line(start, end, tast=9, ballhere = True):
+    #         """
+    #         Zeichnet eine Linie zum Reflektieren
+    #         Input:  Anfangspunkt als Tuple
+    #                 Endpunkt als Tupel
+    #                 Tastabstand mit der die Linie zerlegt wird. Standartmäßig = 9
+    #                 ballhere = False: Es wird nur geprüft ob Ball1 mit der Linie stößt, falls True dann auch für Ball2
+    #         Output: Liste mit Punkten auf der Linie 
+    #         """
+    #         start_x = min(start[0],end[0])
+    #         start_y = min(start[1],end[1])
+    #         end_x = max(start[0],end[0])
+    #         end_y = max(start[1],end[1])
 
-            pygame.draw.line(screen, colors['white'], (start_x,start_y),(end_x,end_y))
+    #         pygame.draw.line(screen, colors['white'], (start_x,start_y),(end_x,end_y))
 
-            richtung = Vector(end_x - start_x , end_y - start_y)
-            richtung = richtung * (1/(richtung.abs()))
-            normale = richtung.rotate(90)
-            l = Vector(start_x,start_y)
-            points = [l] # erster Punkt
+    #         richtung = Vector(end_x - start_x , end_y - start_y)
+    #         richtung = richtung * (1/(richtung.abs()))
+    #         normale = richtung.rotate(90)
+    #         l = Vector(start_x,start_y)
+    #         points = [l] # erster Punkt
 
-            while True:
-                l = l + richtung * tast
-                if l.x > end_x or l.y > end_y:
-                    break
-                points.append(l)
+    #         while True:
+    #             l = l + richtung * tast
+    #             if l.x > end_x or l.y > end_y:
+    #                 break
+    #             points.append(l)
             
-            for vec in points:
-                distance = ball1.position + vec * (-1)
-                if distance.abs() <= ball1.radius:
-                    ball1_v_davor = ball1.velocity
-                    ball1.position = ball1.position + normale * (ball1_v_davor * normale)*(-1)
-                    ball1.velocity = richtung * (ball1_v_davor * richtung)*(-1) + normale * (ball1_v_davor * normale)*(1)
-                    ball1.velocity = ball1.velocity * (-0.8)
-                if ballhere:
-                    distance = ball2.position + vec * (-0.8)
-                    if distance.abs() <= ball2.radius:
-                        ball2_v_davor = ball2.velocity
-                        ball2.position = ball2.position + normale * (ball2_v_davor * normale)*(-1)
-                        ball2.velocity = richtung * (ball2_v_davor * richtung)*(-1) + normale * (ball2_v_davor * normale)*(1)
-                        ball2.velocity = ball2.velocity * (-0.8)
+    #         for vec in points:
+    #             distance = ball1.position + vec * (-1)
+    #             if distance.abs() <= ball1.radius:
+    #                 ball1_v_davor = ball1.velocity
+    #                 ball1.position = ball1.position + normale * (ball1_v_davor * normale)*(-1)
+    #                 ball1.velocity = richtung * (ball1_v_davor * richtung)*(-1) + normale * (ball1_v_davor * normale)*(1)
+    #                 ball1.velocity = ball1.velocity * (-0.8)
+    #             if ballhere:
+    #                 distance = ball2.position + vec * (-0.8)
+    #                 if distance.abs() <= ball2.radius:
+    #                     ball2_v_davor = ball2.velocity
+    #                     ball2.position = ball2.position + normale * (ball2_v_davor * normale)*(-1)
+    #                     ball2.velocity = richtung * (ball2_v_davor * richtung)*(-1) + normale * (ball2_v_davor * normale)*(1)
+    #                     ball2.velocity = ball2.velocity * (-0.8)
         
     # Initialize PyGame
     pygame.init()
@@ -163,7 +163,7 @@ def main():
     
     #Rects
     rect1 = Rect(Vector(300,400),100,20)
-    rotating_center_rect = Rotating_rect((200, 200), (25, 25), 0, 20, 100)
+    rotating_rect = RectangleDrawer(screen)
     circle = 0
     
     starts = 5
@@ -231,7 +231,7 @@ def main():
         highscore_rect = highscore_surface.get_rect(midbottom = (300,120))
         screen.blit(highscore_surface,highscore_rect)
         
-        rotating_center_rect.rotate(1, True)
+        #rotating_center_rect.rotate(1, True)
 
         if rect1.position.x < 0 or (rect1.position.x + rect1.width) > screen.get_width():
             rect_speed *= -1
@@ -242,7 +242,7 @@ def main():
         pygame.draw.circle(screen, 'green', [ball2.position.x,ball2.position.y] , ball2.radius)
         pygame.draw.circle(screen, 'green', [big_ball.position.x,big_ball.position.y] , big_ball.radius)
         pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height))
-        rotrect = rotating_center_rect.draw(screen)
+        # rotrect = rotating_center_rect.draw(screen)
 
         hole1_rect = hole1_surface.get_rect(bottomleft = (0,screen.get_height()))
         hole2_rect = hole2_surface.get_rect(bottomright = (screen.get_width(),screen.get_height()))
@@ -256,33 +256,45 @@ def main():
         ball2.check_collision(big_ball)
         ball1.gravitate()
         ball2.gravitate()
-        key_left, bat1_rect = left_bat.update_left(key_left)
-        key_right, bat2_rect = right_bat.update_right(key_right)
+        key_left = left_bat.update_left(key_left)
+        key_right = right_bat.update_right(key_right)
 
-        i += 1
-        rotrect_points = draw_rectangle(200,200,50,100,colors['black'],i/4)
-        corners = []
-        for point in rotrect_points:
-            vec = Vector(point[0],point[1])
-            corners.append(vec)
+        i += 4
+        # rotrect_points = draw_rectangle(200,200,50,100,colors['black'],i/4)
+        # corners = []
+        # for point in rotrect_points:
+        #     vec = Vector(point[0],point[1])
+        #     corners.append(vec)
         
-        for bla in range(len(corners)):
-            edge = corners[(bla + 1) % len(corners)] - corners[bla]
-            normal = Vector(-edge.y, edge.x).normalize()
+        # for bla in range(len(corners)):
+        #     edge = corners[(bla + 1) % len(corners)] - corners[bla]
+        #     normal = Vector(-edge.y, edge.x).normalize()
 
-            rect_projections = [p.dot(normal) for p in corners]
-            circle_projection = ball1.position.dot(normal)
+        #     rect_projections = [p.dot(normal) for p in corners]
+        #     circle_projection = ball1.position.dot(normal)
 
-            min_rect = min(rect_projections)
-            max_rect = max(rect_projections)
+        #     min_rect = min(rect_projections)
+        #     max_rect = max(rect_projections)
 
-            if (circle_projection + ball1.radius < min_rect or circle_projection - ball1.radius > max_rect):
-                # es gibt eine separierende Axe!
-                print('abstand')
-            else:
-                print('colli')
-                #ball1.velocity = ball1.velocity * (-1)
-                
+        #     if (circle_projection + ball1.radius < min_rect or circle_projection - ball1.radius > max_rect):
+        #         # es gibt eine separierende Axe!
+        #         print('abstand')
+        #     else:
+        #         print('colli')
+        #         #ball1.velocity = ball1.velocity * (-1)
+        rotating_rect.draw_rectangle(200,200,30,100,colors['black'],i)
+        for ball in [ball1,ball2]:
+            if ball.is_rotrect_collision(rotating_rect, i):
+                print('truu')
+                _,normal = rect1.is_collision(ball)
+                tangent = normal.rotate(90)
+                normal = tangent.rotate(90)
+                absvelo = ball.velocity.abs()
+                velo = tangent * ball.velocity.dot(tangent) * (-1) + normal * ball.velocity.dot(normal)
+                ball.position += velo.normalize()
+                ball.velocity =  velo*absvelo
+                #print(velo)
+                score += 1    
 
 
 
@@ -337,7 +349,7 @@ def main():
                     score = 0
                     scores.append(score)
                     ball.check_screen_collide(screen_borders)
-                    GameOver()
+                    #GameOver()
             else:
                 ball.check_screen_collide(screen_borders)
                 
