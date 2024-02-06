@@ -75,28 +75,28 @@ class RotatingObject(pygame.sprite.Sprite):
                 self.mask = pygame.mask.from_surface(self.image)
             return False, self.rect
         
-    def is_collision(self, ball, bat):
-        rect_rotated_surface = bat
-        corners = [
-                   Vector(rect_rotated_surface.topleft[0], rect_rotated_surface.topleft[1],),
-                   Vector(rect_rotated_surface.topright[0], rect_rotated_surface.topright[1]),
-                   Vector(rect_rotated_surface.bottomright[0], rect_rotated_surface.bottomright[1]),
-                   Vector(rect_rotated_surface.bottomleft[0], rect_rotated_surface.bottomleft[1]),
-                   ]
-        rect_vertices = corners
+    # def is_collision(self, ball, bat):
+    #     rect_rotated_surface = bat
+    #     corners = [
+    #                Vector(rect_rotated_surface.topleft[0], rect_rotated_surface.topleft[1],),
+    #                Vector(rect_rotated_surface.topright[0], rect_rotated_surface.topright[1]),
+    #                Vector(rect_rotated_surface.bottomright[0], rect_rotated_surface.bottomright[1]),
+    #                Vector(rect_rotated_surface.bottomleft[0], rect_rotated_surface.bottomleft[1]),
+    #                ]
+    #     rect_vertices = corners
         
-        for i in range(len(rect_vertices)):
-            edge = rect_vertices[(i + 1) % len(rect_vertices)] - rect_vertices[i]
-            normal = Vector(-edge.y, edge.x).normalize()
+    #     for i in range(len(rect_vertices)):
+    #         edge = rect_vertices[(i + 1) % len(rect_vertices)] - rect_vertices[i]
+    #         normal = Vector(-edge.y, edge.x).normalize()
 
-            rect_projections = [p.dot(normal) for p in rect_vertices]
-            circle_projection = ball.position.dot(normal)
+    #         rect_projections = [p.dot(normal) for p in rect_vertices]
+    #         circle_projection = ball.position.dot(normal)
 
-            min_rect = min(rect_projections)
-            max_rect = max(rect_projections)
+    #         min_rect = min(rect_projections)
+    #         max_rect = max(rect_projections)
 
-            if circle_projection + ball.radius < min_rect or circle_projection - ball.radius > max_rect:
-                # es gibt eine separierende Axe!
-                return False,normal
+    #         if circle_projection + ball.radius < min_rect or circle_projection - ball.radius > max_rect:
+    #             # es gibt eine separierende Axe!
+    #             return False,normal
 
-        return True,normal
+    #     return True,normal
