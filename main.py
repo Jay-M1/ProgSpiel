@@ -142,6 +142,11 @@ def main():
     bg_orig = pygame.image.load(Path(__file__).parents[0] / Path("graphics/bkg.jpg")).convert()
     test_font = pygame.font.Font(None,25)
     
+    # Music
+    
+    music = pygame.mixer.music.load(Path(__file__).parents[0] / Path("audio/Clown.mp3")) # Quelle https://www.chosic.com/download-audio/53609/
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(.6)
 
     # Surfaces
     text_surface = test_font.render('Keys: Start: "click", Random: "M", Reset: "r", Links, Rechts Pfeil', False, 'Black')
@@ -259,7 +264,7 @@ def main():
         key_left = left_bat.update_left(key_left)
         key_right = right_bat.update_right(key_right)
 
-        i += 4
+        i += 1
         # rotrect_points = draw_rectangle(200,200,50,100,colors['black'],i/4)
         # corners = []
         # for point in rotrect_points:
@@ -282,9 +287,9 @@ def main():
         #     else:
         #         print('colli')
         #         #ball1.velocity = ball1.velocity * (-1)
-        rotating_rect.draw_rectangle(200,200,30,100,colors['black'],i)
+        rotating_rect.draw_rectangle(150,300,30,100,colors['black'],i/4)
         for ball in [ball1,ball2]:
-            if ball.is_rotrect_collision(rotating_rect, i):
+            if ball.is_rotrect_collision(rotating_rect, i/4):
                 print('truu')
                 _,normal = rect1.is_collision(ball)
                 tangent = normal.rotate(90)

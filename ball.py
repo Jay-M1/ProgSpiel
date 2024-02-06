@@ -86,6 +86,6 @@ class Ball:
         return rect.is_collision(self)[0]
     
     def is_rotrect_collision(self,rect, i):
-        return rect.is_collision(self, 200,200,50,100,i)[0]
+        return rect.is_collision(self, 150,300,30,100,i)[0]
     
     
