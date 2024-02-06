@@ -44,7 +44,7 @@ class Ball:
         if distance <= max(self.radius, other.radius):
             
 
-            if other.radius == 30: # ie is big ball
+            if other.radius >= 11: # ie is big ball
                 isbigball = True
 
             self_v_davor = self.velocity
@@ -87,5 +87,14 @@ class Ball:
     
     def is_rotrect_collision(self,rect, i):
         return rect.is_collision(self, 150,300,30,100,i)[0]
+    
+    def collides_with(self, p_of_obj):
+
+        vec_of_points = []
+        for vec in p_of_obj:
+            thing = Vector(vec[0],vec[1])
+            vec_of_points.append(thing)
+
+        return vec_of_points
     
     

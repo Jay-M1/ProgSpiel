@@ -1,5 +1,6 @@
 import pygame
 import random
+import numpy as np
 import math
 from vector import Vector
 
@@ -61,9 +62,12 @@ class Rect:
         ball_rect = Rect(Vector(ball.position.x - ball.radius, ball.position.y - ball.radius),
                          ball.radius * 2, ball.radius * 2)
 
+        normals = []
+        overlaps = []
         for i in range(len(rect_vertices)):
             edge = rect_vertices[(i + 1) % len(rect_vertices)] - rect_vertices[i]
-            normal = Vector(-edge.y, edge.x).normalize()
+            normal = Vector(-edge.y,edge.x).normalize()
+            normals.append(normal)
 
             # Berechne Projektionen für das Rechteck und das Ball-Rechteck
             rect_projections = [p.dot(normal) for p in rect_vertices]
@@ -74,10 +78,14 @@ class Rect:
             min_ball_rect = min(ball_rect_projections)
             max_ball_rect = max(ball_rect_projections)
 
+            overlap = min(min_ball_rect - max_rect, max_ball_rect - min_rect)
+            overlaps.append(overlap)
+
             # Überprüfe die Kollision zwischen dem Ball-Rechteck und dem Rechteck
             if max_ball_rect < min_rect or min_ball_rect > max_rect:
                 # Es gibt eine separierende Achse!
-                return False, normal
+                return False, 0
 
         # Wenn keine separierende Achse gefunden wurde, gibt es eine Kollision
-        return True, normal
+        min_overlap = (np.argmin(overlaps), np.min(overlaps))
+        return True, normals[min_overlap[0]]
