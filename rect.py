@@ -78,7 +78,7 @@ class Rect:
             min_ball_rect = min(ball_rect_projections)
             max_ball_rect = max(ball_rect_projections)
 
-            overlap = min(min_ball_rect - max_rect, max_ball_rect - min_rect)
+            overlap =  min(max_rect, max_ball_rect) - max(min_rect, min_ball_rect)
             overlaps.append(overlap)
 
             # Überprüfe die Kollision zwischen dem Ball-Rechteck und dem Rechteck
