@@ -109,7 +109,7 @@ class Vector:
         """
         Gibt die Vektor-Komponenten als Ganzzahlen zurück
         """
-        return int(self.x), int(self.y)
+        return (int(self.x), int(self.y))
 
     def angle(self):
         """

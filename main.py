@@ -7,7 +7,7 @@ from copy import copy
 from vector import Vector
 from ball import Ball
 from rect import Rect
-from bat import RotatingObject
+from bat import Bat
 from rotatingrect import RectangleDrawer
 
 colors = {'white': (255, 255, 255),
@@ -65,7 +65,7 @@ def main():
     # Music
     
     music = pygame.mixer.music.load(Path(__file__).parents[0] / Path("audio/Clown.mp3")) # Quelle https://www.chosic.com/download-audio/53609/
-    pygame.mixer.music.play(-1)
+    #pygame.mixer.music.play(-1)
     pygame.mixer.music.set_volume(.6)
 
     # Surfaces
@@ -82,14 +82,20 @@ def main():
     
     
     # Starter
-    left_bat = RotatingObject(Vector(screen.get_width()/2 - 150, 700), Vector(2, -25), -90, "left")
-    right_bat = RotatingObject(Vector(screen.get_width()/2 + 150, 700), Vector(0, 0), 90, "right")
-    all_sprites = pygame.sprite.Group(left_bat, right_bat)
+    # left_bat = RotatingObject(Vector(screen.get_width()/2 - 150, 700), Vector(2, -25), -90, "left")
+    # right_bat = RotatingObject(Vector(screen.get_width()/2 + 150, 700), Vector(0, 0), 90, "right")
+    # all_sprites = pygame.sprite.Group(left_bat, right_bat)
     
     #Rects
     rect1 = Rect(Vector(300,400),100,80)
     rotating_rect = RectangleDrawer(screen)
     circle = 0
+
+    nlb_height = Vector(0,20)
+    nlb_width = Vector(120,0)
+    nlb_bottomleft = Vector(150,700)
+    nlb_points = (nlb_bottomleft , nlb_bottomleft + nlb_width, nlb_bottomleft + nlb_width + nlb_height , nlb_bottomleft + nlb_height)
+    new_left_bat = Bat(screen, colors['green'], nlb_points)
     
     starts = 5
     
@@ -99,7 +105,9 @@ def main():
     rect_speed = 2
     big_ball_speed = 2
 
-    i = 1
+    varhoch = 1
+
+    nlb_angle = 0
     
     # Main event loop
     while running:
@@ -140,7 +148,10 @@ def main():
                     ball2.velocity.y += randint(-10,20)
 
         # Shapes
-        all_sprites.draw(screen)
+        # all_sprites.draw(screen)
+                    
+        new_left_bat.update(nlb_angle)
+        nlb_angle += 3
         
         screen.blit(text_surface,text_rect)
 
@@ -193,8 +204,8 @@ def main():
         ball2.check_collision(big_ball)
         ball1.gravitate()
         ball2.gravitate()
-        key_left = left_bat.update_left(key_left)
-        key_right = right_bat.update_right(key_right)
+        # key_left = left_bat.update_left(key_left)
+        # key_right = right_bat.update_right(key_right)
 
         for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
             
@@ -210,7 +221,7 @@ def main():
                 ball.check_screen_collide(screen_borders)
                 
 
-        i += 1
+        varhoch += 1
         # rotrect_points = draw_rectangle(200,200,50,100,colors['black'],i/4)
         # corners = []
         # for point in rotrect_points:
