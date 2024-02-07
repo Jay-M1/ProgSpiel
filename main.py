@@ -92,11 +92,10 @@ def main():
     circle = 0
 
     nlb_height = Vector(0,20)
-    nlb_width = Vector(120,0)
-    nlb_bottomleft = Vector(150,700)
+    nlb_width = Vector(150,0)
+    nlb_bottomleft = Vector(145,700)
     nlb_points = (nlb_bottomleft , nlb_bottomleft + nlb_width, nlb_bottomleft + nlb_width + nlb_height , nlb_bottomleft + nlb_height)
-    new_left_bat = Bat(screen, colors['green'], nlb_points)
-    
+    new_left_bat = Bat(screen, colors['green'], nlb_points)    
     starts = 5
     
     key_left = False
@@ -130,7 +129,7 @@ def main():
                 starts -= 1
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
-                    key_left = True
+                    new_left_bat.count = 0
                 if event.key == pygame.K_RIGHT:
                     key_right = True
                 if event.key == pygame.K_r:
@@ -149,9 +148,9 @@ def main():
 
         # Shapes
         # all_sprites.draw(screen)
-                    
-        new_left_bat.update(nlb_angle)
-        nlb_angle += 3
+        
+        #new_left_bat.angle += 3
+        new_left_bat.update()
         
         screen.blit(text_surface,text_rect)
 

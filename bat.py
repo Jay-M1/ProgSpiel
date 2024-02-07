@@ -1,37 +1,64 @@
 import pygame
 import random   
 from vector import Vector
+from copy import copy
 
-
+null = 1
 
 class Bat:
-    def __init__(self, screen, color, points):
+    def __init__(self, screen, color, points, angle=30*null, richtung=1, count=0, active=1):
+
+        '''
+        Tupel sind für die Aktualisierung der Positionen der Ecken
+        Vectoren sind NUR für die Berechnung!
+        '''
+
         self.screen = screen
         self.color = color
         self.points_vec = points
         self.points_tuple = [_.int_tuple() for _ in points]
         self.width = points[1] - points[0]
         self.height = points[3] - points[0]
-        self.center = points[0] + self.height * 0.5 + self.width * 0.5
+        self.center = (self.points_vec[0] - self.points_vec[2])/2 + self.points_vec[2]
+        #self.center = points[0] + self.height * 0.5 + self.width * 0.5
+        self.angle = angle
+        self.richtung = richtung
+        self.count = count
+        self.active = active
 
-    def update(self, angle):
-        pygame.draw.polygon(self.screen, self.color, self.rotate(angle))
+    def update(self):
+        pygame.draw.polygon(self.screen, self.color, self.flip())
         # for point in self.points_tuple: pygame.draw.line(self.screen, (0,0,255), (0,0), point)    # funktioniert
         # pygame.draw.line(self.screen, (0,0,255), (0,0), self.center.int_tuple())                  # funktioniert
 
-    def rotate(self,angle):
+    def flip(self):
+
+        if self.angle == -50:
+            self.richtung *= -1
+        elif self.angle == 40:
+            self.richtung *= -1
+            self.count += 1
+
+            
+        self.angle -= 10*null * self.richtung * self.active
         rotated_points_vec = []
         rotated_points_tuple = []
 
         drehpunkt = self.points_vec[0]
-
         for thing in self.points_vec:
             thing = thing - drehpunkt 
-            thing = thing.rotate(angle) + drehpunkt
+            thing = thing.rotate(self.angle) + drehpunkt
             rotated_points_tuple.append(thing.int_tuple())
             rotated_points_vec.append(thing)
+  
+        print(self.count)
+        if self.count >= 1: self.active = 0
+        if self.count < 1: self.active = 1
         
+        self.points_tuple = rotated_points_tuple
+        self.center = (Vector(self.points_tuple[0][0], self.points_tuple[0][1]) - Vector(self.points_tuple[2][0], self.points_tuple[2][1]))/2 + Vector(self.points_tuple[2][0], self.points_tuple[2][1])
         return rotated_points_tuple
+
 
 
 # class RotatingObject(pygame.sprite.Sprite):
