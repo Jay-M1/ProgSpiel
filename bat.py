@@ -3,10 +3,8 @@ import random
 from vector import Vector
 from copy import copy
 
-null = 1
-
 class Bat:
-    def __init__(self, screen, color, points, angle=30*null, richtung=1, count=0, active=1):
+    def __init__(self, screen, color, points, angle=30, richtung=1, count=0, active=1, right=False):
 
         '''
         Tupel sind für die Aktualisierung der Positionen der Ecken
@@ -25,6 +23,8 @@ class Bat:
         self.richtung = richtung
         self.count = count
         self.active = active
+        if right: self.right = -1
+        if not right: self.right = 1
 
     def update(self):
         pygame.draw.polygon(self.screen, self.color, self.flip())
@@ -33,14 +33,14 @@ class Bat:
 
     def flip(self):
 
-        if self.angle == -50:
+        if self.angle == -50 * self.right:
             self.richtung *= -1
-        elif self.angle == 40:
+        elif self.angle == 40 * self.right:
             self.richtung *= -1
             self.count += 1
 
             
-        self.angle -= 10*null * self.richtung * self.active
+        self.angle -= 5 * self.richtung * self.active
         rotated_points_vec = []
         rotated_points_tuple = []
 
@@ -51,7 +51,7 @@ class Bat:
             rotated_points_tuple.append(thing.int_tuple())
             rotated_points_vec.append(thing)
   
-        print(self.count)
+        #print(self.angle)
         if self.count >= 1: self.active = 0
         if self.count < 1: self.active = 1
         

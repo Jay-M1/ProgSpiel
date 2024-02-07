@@ -51,10 +51,10 @@ def main():
 
     # Initialisation
     hole_h = 100
-    ball1 = Ball(Vector(10, screen.get_height()),Vector(0,0),10)
-    ball2 = Ball(Vector(500, screen.get_height()),Vector(0,0),10)
-    big_ball = Ball(Vector(300,300), Vector(0,0), 30, grav=Vector(0,0))
-    big_ball2 = Ball(Vector(400,200), Vector(0,0), 20, grav=Vector(0,0))
+    ball1 = Ball(screen, Vector(10, screen.get_height()),Vector(0,0),10)
+    ball2 = Ball(screen, Vector(500, screen.get_height()),Vector(0,0),10)
+    big_ball = Ball(screen, Vector(300,300), Vector(0,0), 30, grav=Vector(0,0))
+    big_ball2 = Ball(screen, Vector(400,200), Vector(0,0), 20, grav=Vector(0,0))
     #small_ball = Ball(Vector(300,480), Vector(0,0), 11, grav=Vector(0,0))
     #rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75)
     
@@ -93,9 +93,15 @@ def main():
 
     nlb_height = Vector(0,20)
     nlb_width = Vector(150,0)
-    nlb_bottomleft = Vector(145,700)
+    nlb_bottomleft = Vector(145,710)
     nlb_points = (nlb_bottomleft , nlb_bottomleft + nlb_width, nlb_bottomleft + nlb_width + nlb_height , nlb_bottomleft + nlb_height)
-    new_left_bat = Bat(screen, colors['green'], nlb_points)    
+    new_left_bat = Bat(screen, colors['green'], nlb_points) 
+
+    nrb_height = Vector(0,20)
+    nrb_width = Vector(-150,0)
+    nrb_bottomright = Vector(455,710)
+    nrb_points = (nrb_bottomright , nrb_bottomright + nrb_width, nrb_bottomright + nrb_width + nrb_height , nrb_bottomright + nrb_height)
+    new_right_bat = Bat(screen, colors['green'], nrb_points, right=True)
     starts = 5
     
     key_left = False
@@ -131,7 +137,7 @@ def main():
                 if event.key == pygame.K_LEFT:
                     new_left_bat.count = 0
                 if event.key == pygame.K_RIGHT:
-                    key_right = True
+                    new_right_bat.count = 0
                 if event.key == pygame.K_r:
                     ball1.velocity = Vector(0, 0)
                     ball1.position = Vector(ball1.radius, screen.get_height())
@@ -148,10 +154,15 @@ def main():
 
         # Shapes
         # all_sprites.draw(screen)
-        
+    
         #new_left_bat.angle += 3
         new_left_bat.update()
-        
+        new_right_bat.update()
+        for ball in [ball1, ball2]:
+            for bat in [new_left_bat, new_right_bat]:
+                ball.sat_algo(bat.points_tuple, bat)
+                ball.sat_algo(bat.points_tuple, bat)
+        #####################
         screen.blit(text_surface,text_rect)
 
         score_surface = test_font.render(f'Score: {score}', False, 'Black')
@@ -215,7 +226,7 @@ def main():
                     score = 0
                     scores.append(score)
                     ball.check_screen_collide(screen_borders)
-                    #GameOver()
+                    GameOver()
             else:
                 ball.check_screen_collide(screen_borders)
                 

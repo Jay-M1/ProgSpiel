@@ -1,7 +1,9 @@
 import pygame 
 import random
 import math
+import numpy as np
 from vector import Vector
+from bat import Bat
 
 colors = {'white': (255, 255, 255),
           'black': (0, 0, 0),
@@ -12,11 +14,12 @@ colors = {'white': (255, 255, 255),
 
 class Ball:
 
-    def __init__(self, position: Vector, velocity: Vector, radius: float, grav=Vector(0.0,0.3)):
+    def __init__(self, sc, position: Vector, velocity: Vector, radius: float, grav=Vector(0.0,0.3)):
         self.position = position
         self.velocity = velocity
         self.radius = radius
         self.grav = grav
+        self.screen = sc
 
     def check_screen_collide(self, borders: Vector, damp=0.8,roll=0.99):
         if self.position.y > borders.y - self.radius:
@@ -99,50 +102,60 @@ class Ball:
         for vec in p_of_obj:
             thing = Vector(vec[0],vec[1])
             vec_of_points.append(thing)
+            
 
         return vec_of_points
     
-    # def sat_algo(self, points):
+    def sat_algo(self, points, other):
 
-    #     vec_points = [Vector(point[0], point[1]) for point in points]
+        vec_points = [Vector(point[0], point[1]) for point in points]
 
-    #     # SAT Beginn
+        # SAT Beginn
+        vertices = []
+        for index in range(len(vec_points)):
+            vertice = vec_points[index-1] - vec_points[index]
+            vertices.append(vertice)
+            
+            # pygame.draw.line(self.screen, colors['black'], vec_points[index].int_tuple(), vec_points[index-1].int_tuple())
 
-    #     vertices = []
-    #     for index,thing in range(vec_points), vec_points:
-    #         vertice = vec_points[index]
+        # # Erstelle ein Rechteck um den Ball
+        # ball_rect = Rect(Vector(ball.position.x - ball.radius, ball.position.y - ball.radius),
+        #                  ball.radius * 2, ball.radius * 2)
 
+        normals = []
+        overlaps = []
+        for vertice in vertices:
+            normal = vertice.rotate(90).normalize()
+            normals.append(normal)
 
-        
-    #     # Erstelle ein Rechteck um den Ball
-    #     ball_rect = Rect(Vector(ball.position.x - ball.radius, ball.position.y - ball.radius),
-    #                      ball.radius * 2, ball.radius * 2)
+            obj_projections = [p.dot(normal) for p in vec_points]
+            ball_projections = [self.position.dot(normal) + self.radius, self.position.dot(normal) - self.radius]
 
-    #     normals = []
-    #     overlaps = []
-    #     for i in range(len(rect_vertices)):
-    #         edge = rect_vertices[(i + 1) % len(rect_vertices)] - rect_vertices[i]
-    #         normal = Vector(-edge.y,edge.x).normalize()
-    #         normals.append(normal)
+            min_rect = min(obj_projections)
+            max_rect = max(obj_projections)
+            min_ball = min(ball_projections)
+            max_ball = max(ball_projections)
 
-    #         # Berechne Projektionen für das Rechteck und das Ball-Rechteck
-    #         rect_projections = [p.dot(normal) for p in rect_vertices]
-    #         ball_rect_projections = [p.dot(normal) for p in ball_rect.calculate_vertices()]
+            overlap =  min(max_rect, max_ball) - max(min_rect, min_ball)
+            overlaps.append(overlap)
 
-    #         min_rect = min(rect_projections)
-    #         max_rect = max(rect_projections)
-    #         min_ball_rect = min(ball_rect_projections)
-    #         max_ball_rect = max(ball_rect_projections)
+            if max_ball < min_rect or min_ball > max_rect:
+                # Es gibt eine separierende Achse!
+                return False, 0
 
-    #         overlap =  min(max_rect, max_ball_rect) - max(min_rect, min_ball_rect)
-    #         overlaps.append(overlap)
-
-    #         # Überprüfe die Kollision zwischen dem Ball-Rechteck und dem Rechteck
-    #         if max_ball_rect < min_rect or min_ball_rect > max_rect:
-    #             # Es gibt eine separierende Achse!
-    #             return False, 0
-
-    #     # Wenn keine separierende Achse gefunden wurde, gibt es eine Kollision
-    #     min_overlap = (np.argmin(overlaps), np.min(overlaps))
-    #     return True, normals[min_overlap[0]]
+        # Wenn keine separierende Achse gefunden wurde, gibt es eine Kollision
+        min_overlap = np.argmin(overlaps)
+        self.collide(normals[min_overlap], other)
+    
+    def collide(self, n, other):
+        '''
+        Lets the ball reflect from massive obj
+        Input: normal n
+        '''
+        boost = other.active * 0.5
+        t = n.rotate(-90)
+        old_velo = self.velocity
+        new_velo = n * old_velo.dot(n) * (-1) + t * old_velo.dot(t)
+        self.position += new_velo.normalize() * 10
+        self.velocity = new_velo * old_velo.abs() * (1+boost)
 
