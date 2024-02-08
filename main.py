@@ -109,7 +109,7 @@ def main():
     #rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75)
     
     # Colors, Background
-    bg_orig = pygame.image.load(Path(__file__).parents[0] / Path("graphics/bkg2.png")).convert()
+    bg_orig = pygame.image.load(Path(__file__).parents[0] / Path("bkg2.png")).convert()
     test_font = pygame.font.Font(None,25)
     
     # Music
