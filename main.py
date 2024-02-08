@@ -419,7 +419,7 @@ def main():
         
         # Settings
         pygame.display.flip() # Update the display of the full screen
-        clock.tick(360) # 60 frames per second        
+        clock.tick(600) # 60 frames per second        
 
 
     save_highscore(player_name, highscore)
