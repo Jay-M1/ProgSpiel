@@ -12,6 +12,8 @@ from rotatingrect import RectangleDrawer
 import pandas as pd
 import os
 
+disable_volume = 0
+
 colors = {'white': (255, 255, 255),
           'black': (0, 0, 0),
           'red': (255, 0 , 0),
@@ -115,8 +117,8 @@ def main():
     # Music
     
     music = pygame.mixer.music.load(Path(__file__).parents[0] / Path("audio/Clown.mp3")) # Quelle https://www.chosic.com/download-audio/53609/
-    #pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(.6)
+    pygame.mixer.music.play(-1)
+    pygame.mixer.music.set_volume(.01*disable_volume)
 
     # Surfaces
     text_surface = test_font.render('Keys: Start: "click", Random: "M", Reset: "r", Links, Rechts Pfeil', False, 'Black')
@@ -137,14 +139,14 @@ def main():
     # all_sprites = pygame.sprite.Group(left_bat, right_bat)
     
     #Rects
-<<<<<<< Updated upstream
+
     rect1 = Rect(Vector(300,400),100,30)
     start_rect = Rect(Vector(30,150),15, 550)
     rotating_rect = RectangleDrawer(screen)
-=======
+
     rect1 = Rect(Vector(300,400),100,80)
     #rotating_rect = RectangleDrawer(screen)
->>>>>>> Stashed changes
+
     circle = 0
 
     nlb_height = Vector(0,20)
@@ -220,7 +222,12 @@ def main():
             for bat in [new_left_bat, new_right_bat]:
                 ball.sat_algo(bat.points_tuple, bat)
                 ball.sat_algo(bat.points_tuple, bat)
-        #####################
+                
+        
+        if ball1.velocity.abs() and ball2.velocity.abs() < 2:
+                    score -= 0.01 # penalty für lansam werden
+                    score = np.round(score,2)
+
         screen.blit(text_surface,text_rect)
 
         score_surface = test_font.render(f'Score: {score}', False, 'Black')
@@ -252,13 +259,13 @@ def main():
         
         #rotating_center_rect.rotate(1, True)
 
-        if rect1.position.x < 45 or (rect1.position.x + rect1.width) > screen.get_width():
+        if rect1.position.x < 70 or (rect1.position.x + rect1.width) > screen.get_width() - 50:
             rect_speed *= -1
         rect1.position.x += rect_speed
         
-        if big_ball.position.x - big_ball.radius < 46:
+        if big_ball.position.x - big_ball.radius < 76:
             big_ball_speed *= -1
-            big_ball.position.x = big_ball.radius + 46
+            #big_ball.position.x = big_ball.radius + 46
         elif big_ball.position.x + big_ball.radius > screen.get_width():
             big_ball_speed *= -1
             big_ball.position.x = screen.get_width() - big_ball.radius
@@ -363,8 +370,8 @@ def main():
                 tangent = normal.rotate(90)
                 prevelo = ball.velocity
                 velo = tangent * ball.velocity.dot(tangent) * (1) + normal * ball.velocity.dot(normal) * (-1)
-                ball.position -= prevelo.normalize()*10
-                ball.velocity =  velo*prevelo.abs()
+                ball.position -= prevelo.normalize()
+                ball.velocity =  velo*prevelo.abs() * 0.8
                 
 
         
@@ -375,9 +382,10 @@ def main():
                 tangent = normal.rotate(90)
                 prevelo = ball.velocity
                 velo = tangent * ball.velocity.dot(tangent) * (1) + normal * ball.velocity.dot(normal) * (-1)
-                ball.position -= prevelo.normalize()*10
-                ball.velocity =  velo*prevelo.abs()
+                ball.position -= prevelo.normalize()
+                ball.velocity =  velo*prevelo.abs() * 0.8
                 #print(velo)
+                pygame.mixer.music.set_volume(.2*disable_volume)
                 score += 1
                 
 
