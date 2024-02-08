@@ -4,7 +4,7 @@ from vector import Vector
 from copy import copy
 
 class Bat:
-    def __init__(self, screen, color, points, angle=30, richtung=1, count=0, active=1, right=False):
+    def __init__(self, screen, color, points, angle=0, richtung=1, count=0, active=1, right=False):
 
         '''
         Tupel sind für die Aktualisierung der Positionen der Ecken
@@ -35,12 +35,12 @@ class Bat:
 
         if self.angle == -50 * self.right:
             self.richtung *= -1
-        elif self.angle == 40 * self.right:
+        elif self.angle == 20 * self.right:
             self.richtung *= -1
             self.count += 1
 
             
-        self.angle -= 5 * self.richtung * self.active
+        self.angle -= 2 * self.richtung * self.active
         rotated_points_vec = []
         rotated_points_tuple = []
 

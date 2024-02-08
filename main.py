@@ -67,7 +67,7 @@ def start_screen(screen):
 def main():
 
     def start(position, radius):
-        ball1.velocity = Vector(12,-25)
+        ball1.velocity = Vector(12,-25) * 0.2
         
     def reset():
         ball1.velocity = Vector(0, 0)
@@ -137,20 +137,25 @@ def main():
     # all_sprites = pygame.sprite.Group(left_bat, right_bat)
     
     #Rects
+<<<<<<< Updated upstream
     rect1 = Rect(Vector(300,400),100,30)
     start_rect = Rect(Vector(30,150),15, 550)
     rotating_rect = RectangleDrawer(screen)
+=======
+    rect1 = Rect(Vector(300,400),100,80)
+    #rotating_rect = RectangleDrawer(screen)
+>>>>>>> Stashed changes
     circle = 0
 
     nlb_height = Vector(0,20)
     nlb_width = Vector(150,0)
-    nlb_bottomleft = Vector(145,710)
+    nlb_bottomleft = Vector(145,725)
     nlb_points = (nlb_bottomleft , nlb_bottomleft + nlb_width, nlb_bottomleft + nlb_width + nlb_height , nlb_bottomleft + nlb_height)
     new_left_bat = Bat(screen, colors['green'], nlb_points) 
 
     nrb_height = Vector(0,20)
     nrb_width = Vector(-150,0)
-    nrb_bottomright = Vector(455,710)
+    nrb_bottomright = Vector(455,725)
     nrb_points = (nrb_bottomright , nrb_bottomright + nrb_width, nrb_bottomright + nrb_width + nrb_height , nrb_bottomright + nrb_height)
     new_right_bat = Bat(screen, colors['green'], nrb_points, right=True)
     starts = 5
@@ -199,10 +204,11 @@ def main():
                     score = 0
                     scores.append(score)
                 if event.key == pygame.K_m:
-                    ball1.velocity.x += randint(-10,20)
-                    ball1.velocity.y += randint(-10,20)
-                    ball2.velocity.x += randint(-10,20)
-                    ball2.velocity.y += randint(-10,20)
+                    m = 5
+                    ball1.velocity.x += randint(-m,m)
+                    ball1.velocity.y += randint(-m,m)
+                    ball2.velocity.x += randint(-m,m)
+                    ball2.velocity.y += randint(-m,m)
 
         # Shapes
         # all_sprites.draw(screen)
@@ -256,8 +262,8 @@ def main():
         elif big_ball.position.x + big_ball.radius > screen.get_width():
             big_ball_speed *= -1
             big_ball.position.x = screen.get_width() - big_ball.radius
-        big_ball.position.x += big_ball_speed
-        big_ball.move_horizontally()
+        big_ball.position.x += big_ball_speed * 0.2
+        #big_ball.move_horizontally()
         
         
         pygame.draw.circle(screen, (35, 161, 224), [ball1.position.x,ball1.position.y] , ball1.radius)
@@ -285,6 +291,9 @@ def main():
         # key_right = right_bat.update_right(key_right)
 
         for ball in [ball1,ball2]:          # die Schleife checkt, ob ein Ball in die "Aus" Zone kommt
+            
+            if ball.velocity.abs() > 10:
+                ball.velocity = ball.velocity * 0.7
             
             if (abs(ball.position.x - screen.get_width()/2) < (screen.get_width() - 2*hole_w)/2
                 and screen.get_height() - ball.position.y < 200):
@@ -402,7 +411,7 @@ def main():
         
         # Settings
         pygame.display.flip() # Update the display of the full screen
-        clock.tick(60) # 60 frames per second        
+        clock.tick(360) # 60 frames per second        
 
 
     save_highscore(player_name, highscore)

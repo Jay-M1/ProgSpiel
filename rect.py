@@ -53,8 +53,8 @@ class Rect:
 
             min_rect = min(rect_projections)
             max_rect = max(rect_projections)
-            min_ball_rect = min(ball_rect_projections)
-            max_ball_rect = max(ball_rect_projections)
+            min_ball_rect = min(ball_rect_projections * 2)
+            max_ball_rect = max(ball_rect_projections * 2)
 
             overlap =  min(max_rect, max_ball_rect) - max(min_rect, min_ball_rect)
             overlaps.append(overlap)

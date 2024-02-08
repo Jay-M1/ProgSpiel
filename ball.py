@@ -14,7 +14,7 @@ colors = {'white': (255, 255, 255),
 
 class Ball:
 
-    def __init__(self, sc, position: Vector, velocity: Vector, radius: float, grav=Vector(0.0,0.3)):
+    def __init__(self, sc, position: Vector, velocity: Vector, radius: float, grav=Vector(0.0,0.1)):
         self.position = position
         self.velocity = velocity
         self.radius = radius
@@ -60,17 +60,17 @@ class Ball:
                 self.velocity = other_v_davor * 0.8
 
             if isbigball:
-                self.velocity = self.velocity * (-1.5)
+                self.velocity = self.velocity * (-1.1)
                 if self.velocity.abs() >= 2:
                     return True            
 
     def gravitate(self,DT=1):
 
-        self.velocity = self.velocity + self.grav*DT
+        self.velocity = self.velocity + self.grav*DT * 0.5
         self.position = self.position + self.velocity*DT + self.grav*DT**2*0.5
         
     def move_horizontally(self):
-        self.position.x += self.velocity.x
+        #self.position.x += self.velocity.x * 0
         self.velocity.y = 0
         
         
@@ -125,11 +125,11 @@ class Ball:
         normals = []
         overlaps = []
         for vertice in vertices:
-            normal = vertice.rotate(90).normalize()
+            normal = vertice.rotate(90 * other.right).normalize()
             normals.append(normal)
 
             obj_projections = [p.dot(normal) for p in vec_points]
-            ball_projections = [self.position.dot(normal) + self.radius, self.position.dot(normal) - self.radius]
+            ball_projections = [self.position.dot(normal) + 2*self.radius, self.position.dot(normal) - 2*self.radius]
 
             min_rect = min(obj_projections)
             max_rect = max(obj_projections)
@@ -152,8 +152,8 @@ class Ball:
         Lets the ball reflect from massive obj
         Input: normal n
         '''
-        boost = other.active * 0.5
-        t = n.rotate(-90)
+        boost = other.active * 0.1
+        t = n.rotate(-90 * other.right)
         old_velo = self.velocity
         new_velo = n * old_velo.dot(n) * (-1) + t * old_velo.dot(t)
         self.position += new_velo.normalize() * 10
