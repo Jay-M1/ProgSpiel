@@ -72,7 +72,7 @@ class Rect:
         if is_aktiv and ball.position.x == 16:
             if self.position.y < 670:
                 return False
-            self.position -= Vector(0, 7)
+            self.position -= Vector(0, 10)
             ball.velocity += Vector(0, -10)
             return False
         else:

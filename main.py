@@ -113,7 +113,7 @@ def main():
     ball1 = Ball(screen, Vector(16, 660),Vector(0,0),10)
     ball2 = Ball(screen, Vector(500, screen.get_height()),Vector(0,0),10)
     big_ball = Ball(screen, Vector(300,300), Vector(0,0), 30, grav=Vector(0,0))
-    big_ball2 = Ball(screen, Vector(400,200), Vector(0,0), 20, grav=Vector(0,0))
+    big_ball2 = Ball(screen, Vector(450,200), Vector(0,0), 20, grav=Vector(0,0))
     #small_ball = Ball(Vector(300,480), Vector(0,0), 11, grav=Vector(0,0))
     #rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75)
     
@@ -146,7 +146,7 @@ def main():
     
     # startshape
     start_rect = Rect(Vector(35,150),5, 550)
-    start_rect2 = Rect(Vector(0,150), 5, 550)
+    start_rect2 = Rect(Vector(0,60), 5, 640)
     start_tri = Triangle(Vector(0,0), Vector(60,0), Vector(0,60))
     starter = Rect(Vector(5,670), 30,30)
     
