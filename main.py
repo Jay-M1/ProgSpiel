@@ -13,6 +13,7 @@ import os
 from tringle import Triangle
 
 
+# defintion of colors
 colors = {'white': (255, 255, 255),
           'black': (0, 0, 0),
           'red': (255, 0 , 0),
@@ -371,27 +372,10 @@ def main():
                 #print(velo)
                 pygame.mixer.music.set_volume(.2*disable_volume)
                 score += 1
-        #         score += 1
-
-        #     for bat in [left_bat, right_bat]:
-        #         if bat == left_bat: batrect = bat1_rect
-        #         elif bat == right_bat: batrect = bat2_rect
-        #         condition_bat, normal_bat = bat.is_collision(ball, batrect)
-        #         if condition_bat:
-        #             tangent_bat = normal_bat.rotate(90)
-        #             normal_bat = tangent_bat.rotate(90)
-        #             absvelo = ball.velocity.abs()
-        #             velo = tangent_bat * ball.velocity.dot(tangent_bat) * (-1) + normal_bat * ball.velocity.dot(normal_bat)
-        #             ball.position += velo.normalize()
-        #             ball.velocity =  velo*absvelo
-        #             print(velo)
-        #             score += 1
-                    
-        
-        
         
         # Settings
         pygame.display.flip() # Update the display of the full screen
+        clock.tick(160) # 60 frames per second        
 
 
     save_highscore(player_name, highscore)
