@@ -12,7 +12,6 @@ import pandas as pd
 import os
 from tringle import Triangle
 
-
 # defintion of colors
 colors = {'white': (255, 255, 255),
           'black': (0, 0, 0),
@@ -268,13 +267,13 @@ def main():
         #rotating_center_rect.rotate(1, True)
         push = starter.push(ball1, push)
 
-        if rect1.position.x < 70 or (rect1.position.x + rect1.width) > screen.get_width() - 50:
+        if rect1.position.x < 45 or (rect1.position.x + rect1.width) > screen.get_width():
             rect_speed *= -1
         rect1.position.x += rect_speed
         
-        if big_ball.position.x - big_ball.radius < 76:
+        if big_ball.position.x - big_ball.radius < 46:
             big_ball_speed *= -1
-            #big_ball.position.x = big_ball.radius + 46
+            big_ball.position.x = big_ball.radius + 46
         elif big_ball.position.x + big_ball.radius > screen.get_width():
             big_ball_speed *= -1
             big_ball.position.x = screen.get_width() - big_ball.radius
@@ -367,10 +366,9 @@ def main():
                 tangent = normal.rotate(90)
                 prevelo = ball.velocity
                 velo = tangent * ball.velocity.dot(tangent) * (1) + normal * ball.velocity.dot(normal) * (-1)
-                ball.position -= prevelo.normalize()
-                ball.velocity =  velo*prevelo.abs() * 0.8
+                ball.position -= prevelo.normalize()*10
+                ball.velocity =  velo*prevelo.abs()
                 #print(velo)
-                pygame.mixer.music.set_volume(.2*disable_volume)
                 score += 1
         
         # Settings

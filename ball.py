@@ -152,10 +152,10 @@ class Ball:
         Lets the ball reflect from massive obj
         Input: normal n
         '''
-        boost = other.active * 0.5
+        boost = other.active * 0.1
         t = n.rotate(-90 * other.right)
         old_velo = self.velocity
         new_velo = n * old_velo.dot(n) * (-1) + t * old_velo.dot(t)
         self.position += new_velo.normalize() * 10
-        self.velocity = new_velo * old_velo.abs() * (0.8+boost)
+        self.velocity = new_velo * old_velo.abs() * (1+boost)
 
