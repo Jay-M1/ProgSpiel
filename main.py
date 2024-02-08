@@ -9,12 +9,60 @@ from ball import Ball
 from rect import Rect
 from bat import Bat
 from rotatingrect import RectangleDrawer
+import pandas as pd
+import os
 
 colors = {'white': (255, 255, 255),
           'black': (0, 0, 0),
           'red': (255, 0 , 0),
           'green': (0, 255, 0),
           'blue': (0, 0, 255)}
+
+Highscore = "Highscore.csv"
+
+def load_highscores():
+    try:
+        df = pd.read_csv(Highscore, header=0)
+        da = True
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=["Name", "Score"])
+        da = False
+    return df, da
+
+def save_highscore(name, score):
+    df, da = load_highscores()
+    df = df._append({"Name": name, "Score": score}, ignore_index=True)
+    df.to_csv(Highscore, index=False)
+    
+def start_screen(screen):
+    font = pygame.font.Font(None, 40)
+    input_rect = pygame.Rect(220, 300, 200, 50)
+    player_name = ''
+    input_active = True
+
+    while input_active:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    input_active = False
+                elif event.key == pygame.K_BACKSPACE:
+                    player_name = player_name[:-1]
+                else:
+                    player_name += event.unicode
+
+        screen.fill(colors['white'])
+        text_surface = font.render('Enter Your Name:', True, colors['black'])
+        text_rect = text_surface.get_rect(center=(300, 250))
+        screen.blit(text_surface, text_rect)
+        pygame.draw.rect(screen, colors['black'], input_rect, 2)
+        text_surface = font.render(player_name, True, colors['black'])
+        screen.blit(text_surface, (input_rect.x + 5, input_rect.y + 5))
+        pygame.display.flip()
+
+    return player_name
 
 def main():
 
@@ -45,6 +93,8 @@ def main():
     # Making display screen
     screen = pygame.display.set_mode((600, 800))
     pygame.display.set_caption('Flipper')
+    player_name = start_screen(screen)
+    
     
     # Clock
     clock = pygame.time.Clock()
@@ -59,7 +109,7 @@ def main():
     #rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75)
     
     # Colors, Background
-    bg_orig = pygame.image.load(Path(__file__).parents[0] / Path("graphics/bkg.jpg")).convert()
+    bg_orig = pygame.image.load(Path(__file__).parents[0] / Path("graphics/bkg2.png")).convert()
     test_font = pygame.font.Font(None,25)
     
     # Music
@@ -87,7 +137,8 @@ def main():
     # all_sprites = pygame.sprite.Group(left_bat, right_bat)
     
     #Rects
-    rect1 = Rect(Vector(300,400),100,80)
+    rect1 = Rect(Vector(300,400),100,30)
+    start_rect = Rect(Vector(30,150),15, 550)
     rotating_rect = RectangleDrawer(screen)
     circle = 0
 
@@ -114,6 +165,7 @@ def main():
 
     nlb_angle = 0
     
+    df, da = load_highscores()
     # Main event loop
     while running:
         
@@ -174,19 +226,33 @@ def main():
         scores[roundnr] = score
         #print(f"{scores} {score}")
         highscore = max(scores)
-        highscore_surface = test_font.render(f'Highscore: {highscore}', False, 'Black')
+        if da:
+            if highscore < df["Score"].max():
+                max_score = df["Score"].max()
+                max_name = df.loc[df["Score"] == max_score]["Name"].values[0]
+                highscore_surface = test_font.render(f'Highscore: {max_name}, {max_score}', False, 'Black')
+            else:
+                highscore_surface = test_font.render(f'Highscore: {highscore}', False, 'Black')
+        else:
+            if highscore > 0:
+                highscore_surface = test_font.render(f'Highscore: {player_name}, {highscore}', False, 'Black')
+            else:
+                highscore_surface = test_font.render(f'Highscore: noch keins', False, 'Black')
+        your_highscore = test_font.render(f'Your Highscore: {highscore}', False, 'Black')
+        your_highscore_rect = your_highscore.get_rect(midbottom = (300,150))
         highscore_rect = highscore_surface.get_rect(midbottom = (300,120))
+        screen.blit(your_highscore,your_highscore_rect)
         screen.blit(highscore_surface,highscore_rect)
         
         #rotating_center_rect.rotate(1, True)
 
-        # if rect1.position.x < 0 or (rect1.position.x + rect1.width) > screen.get_width():
-        #     rect_speed *= -1
-        # rect1.position.x += rect_speed
+        if rect1.position.x < 45 or (rect1.position.x + rect1.width) > screen.get_width():
+            rect_speed *= -1
+        rect1.position.x += rect_speed
         
-        if big_ball.position.x - big_ball.radius < 0:
+        if big_ball.position.x - big_ball.radius < 46:
             big_ball_speed *= -1
-            big_ball.position.x = big_ball.radius
+            big_ball.position.x = big_ball.radius + 46
         elif big_ball.position.x + big_ball.radius > screen.get_width():
             big_ball_speed *= -1
             big_ball.position.x = screen.get_width() - big_ball.radius
@@ -199,6 +265,7 @@ def main():
         pygame.draw.circle(screen, 'green', [big_ball.position.x,big_ball.position.y] , big_ball.radius)
         pygame.draw.circle(screen, 'green', [big_ball2.position.x, big_ball2.position.y] , big_ball2.radius)
         pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height))
+        pygame.draw.rect(screen, 'green', (start_rect.position.x, start_rect.position.y, start_rect.width, start_rect.height))
         # rotrect = rotating_center_rect.draw(screen)
 
         hole1_rect = hole1_surface.get_rect(bottomleft = (0,screen.get_height()))
@@ -280,7 +347,16 @@ def main():
         #         score += 1    
 
 
-        
+        #Startvorrichtung
+        for ball in [ball1,ball2]:
+            if ball.is_rect_collision(start_rect):
+                _,normal = start_rect.is_collision(ball)
+                tangent = normal.rotate(90)
+                prevelo = ball.velocity
+                velo = tangent * ball.velocity.dot(tangent) * (1) + normal * ball.velocity.dot(normal) * (-1)
+                ball.position -= prevelo.normalize()*10
+                ball.velocity =  velo*prevelo.abs()
+                
 
         
         #RECT COLLISIONS:
@@ -328,5 +404,9 @@ def main():
         pygame.display.flip() # Update the display of the full screen
         clock.tick(60) # 60 frames per second        
 
+
+    save_highscore(player_name, highscore)
+    
+    
 if __name__ == '__main__':
     main()
