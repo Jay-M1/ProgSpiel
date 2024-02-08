@@ -67,3 +67,16 @@ class Rect:
         # Wenn keine separierende Achse gefunden wurde, gibt es eine Kollision
         min_overlap = (np.argmin(overlaps), np.min(overlaps))
         return True, normals[min_overlap[0]]
+    
+    def push(self, ball, is_aktiv):
+        if is_aktiv and ball.position.x == 16:
+            if self.position.y < 670:
+                return False
+            self.position -= Vector(0, 7)
+            ball.velocity += Vector(0, -10)
+            return False
+        else:
+            # Ball schieben und Starter zurücksetzen
+            self.position = Vector(5,670)# Setze auf Anfangsposition zurück
+            return False
+            

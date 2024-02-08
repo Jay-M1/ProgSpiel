@@ -110,7 +110,7 @@ def main():
 
     # Initialisation
     hole_h = 100
-    ball1 = Ball(screen, Vector(16, screen.get_height() - hole_h - 40),Vector(0,0),10)
+    ball1 = Ball(screen, Vector(16, 660),Vector(0,0),10)
     ball2 = Ball(screen, Vector(500, screen.get_height()),Vector(0,0),10)
     big_ball = Ball(screen, Vector(300,300), Vector(0,0), 30, grav=Vector(0,0))
     big_ball2 = Ball(screen, Vector(400,200), Vector(0,0), 20, grav=Vector(0,0))
@@ -175,6 +175,7 @@ def main():
     nlb_angle = 0
     
     load = 0
+    push = False
     
     df, da = load_highscores()
     # Main event loop
@@ -197,6 +198,8 @@ def main():
                 start(ball1.position, ball1.radius)
                 starts -= 1
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    push = True
                 if event.key == pygame.K_LEFT:
                     new_left_bat.count = 0
                 if event.key == pygame.K_RIGHT:
@@ -262,6 +265,7 @@ def main():
         screen.blit(highscore_surface,highscore_rect)
         
         #rotating_center_rect.rotate(1, True)
+        push = starter.push(ball1, push)
 
         if rect1.position.x < 45 or (rect1.position.x + rect1.width) > screen.get_width():
             rect_speed *= -1
@@ -340,18 +344,18 @@ def main():
                 velo = tangent2 * ball.velocity.dot(tangent2) * (1) + normal2 * ball.velocity.dot(normal2) * (-1)
                 ball.position -= prevelo.normalize()*10
                 ball.velocity =  velo*prevelo.abs()
-            if ball.is_rect_collision(starter):
-                _,normal3 = starter.is_collision(ball)
-                tangent3 = normal3.rotate(90)
-                prevelo = ball.velocity
-                velo = tangent3 * ball.velocity.dot(tangent3) * (1) + normal3 * ball.velocity.dot(normal3) * (-1)
-                ball.position -= prevelo.normalize()*10
-                ball.velocity =  velo*prevelo.abs()
             if ball.is_rect_collision(start_rect2):
                 _,normal4 = start_rect2.is_collision(ball)
                 tangent4 = normal4.rotate(90)
                 prevelo = ball.velocity
                 velo = tangent4 * ball.velocity.dot(tangent4) * (1) + normal4 * ball.velocity.dot(normal4) * (-1)
+                ball.position -= prevelo.normalize()*10
+                ball.velocity =  velo*prevelo.abs()
+            if ball.is_rect_collision(starter):
+                _,normal3 = starter.is_collision(ball)
+                tangent3 = normal3.rotate(90)
+                prevelo = ball.velocity
+                velo = tangent3 * ball.velocity.dot(tangent3) * (1) + normal3 * ball.velocity.dot(normal3) * (-1)
                 ball.position -= prevelo.normalize()*10
                 ball.velocity =  velo*prevelo.abs()
                     
