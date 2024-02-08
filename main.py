@@ -8,11 +8,10 @@ from vector import Vector
 from ball import Ball
 from rect import Rect
 from bat import Bat
-from rotatingrect import RectangleDrawer
 import pandas as pd
 import os
+from tringle import Triangle
 
-disable_volume = 0
 
 colors = {'white': (255, 255, 255),
           'black': (0, 0, 0),
@@ -20,8 +19,10 @@ colors = {'white': (255, 255, 255),
           'green': (0, 255, 0),
           'blue': (0, 0, 255)}
 
+# file name of highscores
 Highscore = "Highscore.csv"
 
+# read highscores from file "Highscore.csv" or craete a new file if it does not exist
 def load_highscores():
     try:
         df = pd.read_csv(Highscore, header=0)
@@ -31,11 +32,13 @@ def load_highscores():
         da = False
     return df, da
 
+# save highscore to file "Highscore.csv"
 def save_highscore(name, score):
     df, da = load_highscores()
     df = df._append({"Name": name, "Score": score}, ignore_index=True)
     df.to_csv(Highscore, index=False)
-    
+
+# start screen to enter the name of the player
 def start_screen(screen):
     font = pygame.font.Font(None, 40)
     input_rect = pygame.Rect(220, 300, 200, 50)
@@ -66,17 +69,21 @@ def start_screen(screen):
 
     return player_name
 
+# main function
 def main():
 
+    # start function to start the game
     def start(position, radius):
-        ball1.velocity = Vector(12,-25) * 0.2
-        
+        ball1.velocity = Vector(0, -30) * 0.2
+    
+    # reset function to reset the game  
     def reset():
         ball1.velocity = Vector(0, 0)
         ball1.position = Vector(ball1.radius, screen.get_height())
         ball2.velocity = Vector(0.0, 0.0)
         ball2.position = Vector(500, screen.get_height())
-       
+    
+    # game over function to reset the game  
     def GameOver():
         reset()
         
@@ -103,10 +110,10 @@ def main():
 
     # Initialisation
     hole_h = 100
-    ball1 = Ball(screen, Vector(10, screen.get_height()),Vector(0,0),10)
+    ball1 = Ball(screen, Vector(16, 660),Vector(0,0),10)
     ball2 = Ball(screen, Vector(500, screen.get_height()),Vector(0,0),10)
     big_ball = Ball(screen, Vector(300,300), Vector(0,0), 30, grav=Vector(0,0))
-    big_ball2 = Ball(screen, Vector(400,200), Vector(0,0), 20, grav=Vector(0,0))
+    big_ball2 = Ball(screen, Vector(450,200), Vector(0,0), 20, grav=Vector(0,0))
     #small_ball = Ball(Vector(300,480), Vector(0,0), 11, grav=Vector(0,0))
     #rect1 = Rect(position= Vector(400,300), right=325, left=400+75, top=300-75, bottom=300+75)
     
@@ -118,10 +125,10 @@ def main():
     
     music = pygame.mixer.music.load(Path(__file__).parents[0] / Path("audio/Clown.mp3")) # Quelle https://www.chosic.com/download-audio/53609/
     pygame.mixer.music.play(-1)
-    pygame.mixer.music.set_volume(.01*disable_volume)
+    pygame.mixer.music.set_volume(.6)
 
     # Surfaces
-    text_surface = test_font.render('Keys: Start: "click", Random: "M", Reset: "r", Links, Rechts Pfeil', False, 'Black')
+    text_surface = test_font.render('Keys: Start: "click", Random: "M", Reset: "r", Links, Rechts Pfeil', False, 'white')
     
     text_rect = text_surface.get_rect(midbottom = (320,50))
     hole_w = 150
@@ -133,21 +140,16 @@ def main():
     hole2_surface.fill(hole_color)
     
     
-    # Starter
-    # left_bat = RotatingObject(Vector(screen.get_width()/2 - 150, 700), Vector(2, -25), -90, "left")
-    # right_bat = RotatingObject(Vector(screen.get_width()/2 + 150, 700), Vector(0, 0), 90, "right")
-    # all_sprites = pygame.sprite.Group(left_bat, right_bat)
-    
     #Rects
-
-    rect1 = Rect(Vector(300,400),100,30)
-    start_rect = Rect(Vector(30,150),15, 550)
-    rotating_rect = RectangleDrawer(screen)
-
-    rect1 = Rect(Vector(300,400),100,80)
-    #rotating_rect = RectangleDrawer(screen)
-
-    circle = 0
+    rect1 = Rect(Vector(300,400),100,20)
+    
+    
+    # startshape
+    start_rect = Rect(Vector(35,150),5, 550)
+    start_rect2 = Rect(Vector(0,60), 5, 640)
+    start_tri = Triangle(Vector(0,0), Vector(60,0), Vector(0,60))
+    starter = Rect(Vector(5,670), 30,30)
+    
 
     nlb_height = Vector(0,20)
     nlb_width = Vector(150,0)
@@ -172,6 +174,9 @@ def main():
 
     nlb_angle = 0
     
+    load = 0
+    push = False
+    
     df, da = load_highscores()
     # Main event loop
     while running:
@@ -193,13 +198,15 @@ def main():
                 start(ball1.position, ball1.radius)
                 starts -= 1
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    push = True
                 if event.key == pygame.K_LEFT:
                     new_left_bat.count = 0
                 if event.key == pygame.K_RIGHT:
                     new_right_bat.count = 0
                 if event.key == pygame.K_r:
                     ball1.velocity = Vector(0, 0)
-                    ball1.position = Vector(ball1.radius, screen.get_height())
+                    ball1.position = Vector(16, screen.get_height() - hole_h - 40)
                     ball2.velocity = Vector(0.0, 0.0)
                     ball2.position = Vector(500, screen.get_height())
                     roundnr += 1
@@ -212,8 +219,7 @@ def main():
                     ball2.velocity.x += randint(-m,m)
                     ball2.velocity.y += randint(-m,m)
 
-        # Shapes
-        # all_sprites.draw(screen)
+       
     
         #new_left_bat.angle += 3
         new_left_bat.update()
@@ -223,14 +229,9 @@ def main():
                 ball.sat_algo(bat.points_tuple, bat)
                 ball.sat_algo(bat.points_tuple, bat)
                 
-        
-        if ball1.velocity.abs() and ball2.velocity.abs() < 2:
-                    score -= 0.01 # penalty für lansam werden
-                    score = np.round(score,2)
-
         screen.blit(text_surface,text_rect)
 
-        score_surface = test_font.render(f'Score: {score}', False, 'Black')
+        score_surface = test_font.render(f'Score: {score}', False, 'White')
         score_rect = score_surface.get_rect(midbottom = (300,100))
         screen.blit(score_surface,score_rect)
 
@@ -239,25 +240,32 @@ def main():
         scores[roundnr] = score
         #print(f"{scores} {score}")
         highscore = max(scores)
+        max_score = df["Score"].max()
+        max_name = df.loc[df["Score"] == max_score]["Name"].values[0]
+        your_max_score = df.loc[df["Name"] == player_name]["Score"].max()
         if da:
-            if highscore < df["Score"].max():
-                max_score = df["Score"].max()
-                max_name = df.loc[df["Score"] == max_score]["Name"].values[0]
-                highscore_surface = test_font.render(f'Highscore: {max_name}, {max_score}', False, 'Black')
+            if highscore < max_score:
+                highscore_surface = test_font.render(f'Highscore: {max_name}, {max_score}', False, 'White')
+            elif highscore == max_score:
+                highscore_surface = test_font.render(f'Highscore: {max_name}, {player_name}, {max_score}', False, 'White')
             else:
-                highscore_surface = test_font.render(f'Highscore: {highscore}', False, 'Black')
+                highscore_surface = test_font.render(f'Highscore: {player_name}, {highscore}', False, 'White')
         else:
             if highscore > 0:
-                highscore_surface = test_font.render(f'Highscore: {player_name}, {highscore}', False, 'Black')
+                highscore_surface = test_font.render(f'Highscore: {player_name}, {highscore}', False, 'White')
             else:
-                highscore_surface = test_font.render(f'Highscore: noch keins', False, 'Black')
-        your_highscore = test_font.render(f'Your Highscore: {highscore}', False, 'Black')
+                highscore_surface = test_font.render(f'Highscore: noch keins', False, 'White')
+        if your_max_score > highscore:
+            your_highscore = test_font.render(f'Your Highscore: {player_name}, {your_max_score}', False, 'White')
+        else:
+            your_highscore = test_font.render(f'Your Highscore: {player_name}, {highscore}', False, 'White')
         your_highscore_rect = your_highscore.get_rect(midbottom = (300,150))
         highscore_rect = highscore_surface.get_rect(midbottom = (300,120))
         screen.blit(your_highscore,your_highscore_rect)
         screen.blit(highscore_surface,highscore_rect)
         
         #rotating_center_rect.rotate(1, True)
+        push = starter.push(ball1, push)
 
         if rect1.position.x < 70 or (rect1.position.x + rect1.width) > screen.get_width() - 50:
             rect_speed *= -1
@@ -279,6 +287,9 @@ def main():
         pygame.draw.circle(screen, 'green', [big_ball2.position.x, big_ball2.position.y] , big_ball2.radius)
         pygame.draw.rect(screen, 'blue', (rect1.position.x, rect1.position.y, rect1.width, rect1.height))
         pygame.draw.rect(screen, 'green', (start_rect.position.x, start_rect.position.y, start_rect.width, start_rect.height))
+        pygame.draw.rect(screen, 'red', (starter.position.x, starter.position.y, starter.width, starter.height))
+        pygame.draw.rect(screen, 'green', (start_rect2.position.x, start_rect2.position.y, start_rect2.width, start_rect2.height))
+        start_tri.draw_triangle(screen)
         # rotrect = rotating_center_rect.draw(screen)
 
         hole1_rect = hole1_surface.get_rect(bottomleft = (0,screen.get_height()))
@@ -315,52 +326,6 @@ def main():
                 
 
         varhoch += 1
-        # rotrect_points = draw_rectangle(200,200,50,100,colors['black'],i/4)
-        # corners = []
-        # for point in rotrect_points:
-        #     vec = Vector(point[0],point[1])
-        #     corners.append(vec)
-        
-        # for bla in range(len(corners)):
-        #     edge = corners[(bla + 1) % len(corners)] - corners[bla]
-        #     normal = Vector(-edge.y, edge.x).normalize()
-
-        #     rect_projections = [p.dot(normal) for p in corners]
-        #     circle_projection = ball1.position.dot(normal)
-
-        #     min_rect = min(rect_projections)
-        #     max_rect = max(rect_projections)
-
-        #     if (circle_projection + ball1.radius < min_rect or circle_projection - ball1.radius > max_rect):
-        #         # es gibt eine separierende Axe!
-        #         print('abstand')
-        #     else:
-        #         print('colli')
-        #         #ball1.velocity = ball1.velocity * (-1)
-##############################################################################################################################
-        # points = [(100,120),(150,100), (200,300)]
-        # pygame.draw.polygon(screen, colors['red'], points)
-
-        # #for i in ball1.collides_with(points): print(i)
-
-        # if ball1.collides_with(points):
-        #     pass
-        #     #print('it collides')
-################################################################################################################################################
-        
-        # rotating_rect.draw_rectangle(150,300,30,100,colors['green'],i)
-        # for ball in [ball1,ball2]:
-        #     if ball.is_rotrect_collision(rotating_rect, i/4):
-        #         print('truu')
-        #         _,normal = rect1.is_collision(ball)
-        #         tangent = normal.rotate(90)
-        #         normal = tangent.rotate(90)
-        #         prevelo = ball.velocity
-        #         velo = tangent * ball.velocity.dot(tangent) *  + normal * ball.velocity.dot(normal) *(-1)
-        #         ball.position -= prevelo.normalize()
-        #         ball.velocity =  velo*prevelo.abs()
-        #         #print(velo)
-        #         score += 1    
 
 
         #Startvorrichtung
@@ -370,11 +335,30 @@ def main():
                 tangent = normal.rotate(90)
                 prevelo = ball.velocity
                 velo = tangent * ball.velocity.dot(tangent) * (1) + normal * ball.velocity.dot(normal) * (-1)
-                ball.position -= prevelo.normalize()
-                ball.velocity =  velo*prevelo.abs() * 0.8
-                
-
-        
+                ball.position -= prevelo.normalize()*10
+                ball.velocity =  velo*prevelo.abs()
+            if ball.is_triangle_collision(start_tri):
+                _,normal2 = start_tri.is_collision(ball)
+                tangent2 = normal2.rotate(90)
+                prevelo = ball.velocity
+                velo = tangent2 * ball.velocity.dot(tangent2) * (1) + normal2 * ball.velocity.dot(normal2) * (-1)
+                ball.position -= prevelo.normalize()*10
+                ball.velocity =  velo*prevelo.abs()
+            if ball.is_rect_collision(start_rect2):
+                _,normal4 = start_rect2.is_collision(ball)
+                tangent4 = normal4.rotate(90)
+                prevelo = ball.velocity
+                velo = tangent4 * ball.velocity.dot(tangent4) * (1) + normal4 * ball.velocity.dot(normal4) * (-1)
+                ball.position -= prevelo.normalize()*10
+                ball.velocity =  velo*prevelo.abs()
+            if ball.is_rect_collision(starter):
+                _,normal3 = starter.is_collision(ball)
+                tangent3 = normal3.rotate(90)
+                prevelo = ball.velocity
+                velo = tangent3 * ball.velocity.dot(tangent3) * (1) + normal3 * ball.velocity.dot(normal3) * (-1)
+                ball.position -= prevelo.normalize()*10
+                ball.velocity =  velo*prevelo.abs()
+                    
         #RECT COLLISIONS:
         for ball in [ball1,ball2]:
             if ball.is_rect_collision(rect1):
@@ -387,17 +371,6 @@ def main():
                 #print(velo)
                 pygame.mixer.music.set_volume(.2*disable_volume)
                 score += 1
-                
-
-        #     condition,normal2 = rotating_center_rect.is_collision(ball,rotrect)
-        #     if condition:
-        #         tangent2 = normal2.rotate(90)
-        #         normal2 = tangent2.rotate(90)
-        #         absvelo = ball.velocity.abs()
-        #         velo = tangent2 * ball.velocity.dot(tangent2) * (-1) + normal2 * ball.velocity.dot(normal2)
-        #         ball.position += velo.normalize()
-        #         ball.velocity =  velo*absvelo
-        #         print(velo)
         #         score += 1
 
         #     for bat in [left_bat, right_bat]:
@@ -419,7 +392,6 @@ def main():
         
         # Settings
         pygame.display.flip() # Update the display of the full screen
-        clock.tick(600) # 60 frames per second        
 
 
     save_highscore(player_name, highscore)
